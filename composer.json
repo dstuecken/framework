@@ -3,6 +3,7 @@
   "description": "Dennis Stücken",
   "version": "1.0",
   "license": "proprietary",
+  "type": "library",
   "minimum-stability": "dev",
   "authors": [
     {
