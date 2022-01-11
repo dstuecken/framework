@@ -1,0 +1,114 @@
+<?php
+/**
+ * DS-Framework
+ *
+ * @copyright 2016 | DS
+ *
+ * @version   $Version$
+ * @package   DS\Config
+ */
+return [
+    'domain' => '_HOST_',
+    'url' => '_URL_',
+    'description' => 'rarelytics',
+    'read-database' => [
+        'adapter' => 'Mysql',
+        'host' => '_MYSQL_HOST_',
+        'port' => '_MYSQL_PORT_',
+        'username' => '_MYSQL_USER_',
+        'password' => '_MYSQL_PASS_',
+        'dbname' => 'rarelytics',
+        'charset' => 'utf8',
+        'profile' => false,
+    ],
+    'write-database' => [
+        'adapter' => 'Mysql',
+        'host' => '_MYSQL_HOST_',
+        'port' => '_MYSQL_PORT_',
+        'username' => '_MYSQL_USER_',
+        'password' => '_MYSQL_PASS_',
+        'dbname' => 'rarelytics',
+        'charset' => 'utf8',
+        'profile' => false,
+    ],
+    'memcache' => [
+        [
+            'lifetime' => 3600 * 48,
+            'host' => 'memcached',
+            'port' => 11211,
+            'persistent' => true,
+            'weight' => 1,
+        ],
+    ],
+    'redis' => [
+        'host' => '_REDIS_HOST_',
+        'port' => _REDIS_PORT_,
+    ],
+    'crypt' => [
+        'key' => '_CRYPT_KEY_',
+    ],
+    'bernard-options' => [
+        'max-runtime' => PHP_INT_MAX,
+        'max-messages' => 25,
+        'stop-when-empty' => true,
+        'stop-on-error' => true,
+    ],
+    'mail' => [
+        'driver' => 'sendmail',
+        // Catchall addresses for testing or qa, all mails get routed to these addresses
+        // mode => 'email-to@route.to'
+        'catchalls' => [
+            'development' => 'hi@https://www.dvlpr.de',
+            'staging' => 'hi@https://www.dvlpr.de',
+            'test' => 'hi@https://www.dvlpr.de',
+        ],
+        'from' => [
+            'email' => 'hi@https://www.dvlpr.de',
+            'name' => 'Dennis Stücken',
+        ],
+        'sendgrid' => [
+            'apikey' => '',
+        ],
+        'test-email' => '',
+    ],
+    'analytics' => [
+        'google' => '_GOOGLE_ANALYTICS_',
+        'mixpanel' => 'MIXPANEL',
+    ],
+    'sentry' => [
+        'key' => '_SENTRY_KEY_',
+    ],
+    'files' => [
+        'service' => '_FILES_SERVICE_',
+        'local' => [
+            'path' => ROOT_PATH . '/system/uploads/',
+            'webpath' => 'http://localhost:8071/rarelytics/',
+        ],
+        'aws' => [
+            'webpath' => 'https://s3-us-west-2.amazonaws.com/rarelytics/',
+            'bucket' => 'rarelytics',
+            'credentials' => [
+                'key' => '',
+                'secret' => '',
+            ],
+            'region' => 'us-west-2',
+            'version' => 'latest',
+        ],
+    ],
+    'dirs' => [
+        //'DS' => ROOT_PATH . 'app/',
+        //'DS\Controller' => ROOT_PATH . 'app/Controller/',
+        'DS\Cli' => ROOT_PATH . 'app/cli/',
+        //'DS\Constants' => ROOT_PATH . 'app/Constants/',
+        'DS\Events' => ROOT_PATH . 'app/events/',
+        //'DS\Exceptions' => ROOT_PATH . 'app/Exceptions/',
+        //'DS\Component' => ROOT_PATH . 'app/Component/',
+        //'DS\Interfaces' => ROOT_PATH . 'app/Interfaces/',
+        //'DS\Model' => ROOT_PATH . 'app/Model/',
+        //'DS\Task' => ROOT_PATH . 'app/Tasks/',
+        'DS\Tests' => ROOT_PATH . 'app/Tests/',
+        //'DS\Traits' => ROOT_PATH . 'app/Traits/',
+        //'DS\ViewModel' => ROOT_PATH . 'app/ViewModel/',
+    ],
+    'mode' => '_ENVIRONMENT_',
+];

@@ -1,0 +1,4 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+$DIR/phalcon all-models --abstract --get-set --doc --force --namespace=DS\\Model\\Abstracts --extends=\\DS\\Model\\Base --camelize --annotate

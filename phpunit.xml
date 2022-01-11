@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit bootstrap="app/tests/bootstrap.php"
+         colors="true"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         verbose="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+>
+
+    <testsuites>
+        <testsuite name="Test suite">
+            <directory>./app/tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <var name="GITHUB_AUTHTOKEN" value=""/>
+        <var name="GITHUB_USERNAME" value="dstuecken"/>
+    </php>
+
+    <filter>
+		<whitelist processUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">./app</directory>
+		</whitelist>
+	</filter>
+</phpunit>

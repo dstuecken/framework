@@ -1,0 +1,86 @@
+{
+  "name": "dstuecken/framework",
+  "description": "Dennis Stücken",
+  "version": "1.0",
+  "license": "proprietary",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Dennis Stücken <hi@dvlpr.de>"
+    }
+  ],
+  "homepage": "https://www.dvlpr.de",
+  "require": {
+    "php": ">=7.3",
+    "ext-psr": "*",
+    "ext-phalcon": ">=4.0.0",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-posix": "*",
+    "ext-redis": ">=2.2",
+    "predis/predis": "~0.8",
+    "phalcon/incubator": "^4.0",
+    "phalcon/migrations": "1.2.*",
+    "khill/php-duration": "^1.0",
+    "php-http/httplug": "^2.1",
+    "php-http/curl-client": "^2.1",
+    "php-http/message": "^1.8",
+    "guzzlehttp/guzzle": "~6.5",
+    "guzzlehttp/psr7": "^1.7",
+    "kevinrob/guzzle-cache-middleware": "^3.3",
+    "aws/aws-sdk-php": "^3.195",
+    "symfony/options-resolver": "^3.4",
+    "sentry/sentry": "^1.9",
+    "league/flysystem": "^1.0",
+    "league/flysystem-aws-s3-v3": "^1.0@dev",
+    "league/flysystem-cached-adapter": "^1.0",
+    "league/csv": "^9.6",
+    "maknz/slack": "^1.7",
+    "gumlet/php-image-resize": "^1.9",
+    "rollbackpt/url-extractor": "^1.0",
+    "cache/filesystem-adapter": "1.0.*",
+    "mixpanel/mixpanel-php": "2.*",
+    "hashids/hashids": "3.0.*",
+    "php-http/guzzle6-adapter": "^2.0@dev",
+    "swiftmailer/swiftmailer": "6.2.x-dev",
+    "sendgrid/sendgrid": "dev-main",
+    "vlucas/phpdotenv": "5.3.x-dev",
+    "ramsey/uuid": "4.x-dev",
+    "orangesoft/throttler": "dev-main",
+    "psr/http-message": "1.0.x-dev",
+    "caseyamcl/guzzle_retry_middleware": "^2.6",
+    "erusev/parsedown": "dev-master",
+  },
+  "autoload": {
+    "psr-4": {
+      "DS\\": "app/"
+    }
+  },
+  "provide": {
+    "psr/log": "^1",
+    "psr/cache": "^1",
+    "psr/http-message": "^1",
+    "psr/container": "^1",
+    "psr/link": "^1",
+    "psr/event-dispatcher": "^1",
+    "psr/http-server-handler": "^1",
+    "psr/http-server-middleware": "^1",
+    "psr/simple-cache": "^1",
+    "psr/http-factory": "^1",
+    "psr/http-client": "^1"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master",
+    "whoops/phalcon": "2.*",
+    "phpunit/phpunit": "^7",
+    "phpunit/php-timer": "^2",
+    "phalcon/ide-stubs": "4.0.6",
+    "phpmd/phpmd" : "@stable",
+    "mi-schi/phpmd-extension": "dev-master",
+    "squizlabs/php_codesniffer": "*",
+    "phalcon/devtools": "4.0.*"
+  },
+  "config": {
+    "bin-dir": "bin"
+  }
+}

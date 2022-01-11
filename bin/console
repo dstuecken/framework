@@ -1,0 +1,4 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "$( dirname "${BASH_SOURCE[0]}" )")" && pwd )"
+
+php -d display_errors=on -d display_startup_errors=on -d error_reporting=E_ALL ${DIR}/bin/cli.php $@
