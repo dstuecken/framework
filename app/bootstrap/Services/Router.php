@@ -64,8 +64,8 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     
     /**
      * Attach manual routes
-     */
-    $manualRoutes = include ROOT_PATH . '/app/bootstrap/Routes.php';
+     * @todo: better way to attach routes to the framework
+    $manualRoutes = include __DIR__ . '../../bootstrap/Routes.php';
     foreach ($manualRoutes as $route)
     {
         $router
@@ -75,7 +75,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                 $route['methods'] ?? ['GET', 'POST']
             )
             ->setName($route['name'] ?? $route['url']);
-    }
+    }*/
     
     // Register a 404
     // This unfortunately did not work, so i am using the dispatcher workaround below

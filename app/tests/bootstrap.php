@@ -37,7 +37,7 @@ define('TEST_DB_HOST', getenv('TEST_DB_HOST') ?: 'localhsot');
 define('TEST_DB_PORT', getenv('TEST_DB_PORT') ?: 3306);
 define('TEST_DB_USER', getenv('TEST_DB_USER') ?: 'root');
 define('TEST_DB_PASSWD', getenv('TEST_DB_PASSWD') ?: '');
-define('TEST_DB_NAME', getenv('TEST_DB_NAME') ?: 'rarelytics_tests');
+define('TEST_DB_NAME', getenv('TEST_DB_NAME') ?: 'dsframework_tests');
 define('TEST_DB_CHARSET', getenv('TEST_DB_CHARSET') ?: 'utf8');
 
 $root = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;

@@ -32,7 +32,22 @@ class ApiController
     /**
      * @var string
      */
-    private $actionHandlerClass = \DS\Controller\Api\ActionHandler::class;
+    protected static $controllerNamespace = __NAMESPACE__;
+    
+    /**
+     * @var string
+     */
+    protected $actionHandlerClass = \DS\Controller\Api\ActionHandler::class;
+    
+    /**
+     * @param string $controllerNamespace
+     *
+     * @return $this
+     */
+    public static function setControllerNamespace($controllerNamespace)
+    {
+        self::$controllerNamespace = $controllerNamespace;
+    }
     
     /**
      * Initialize controller and define index view
@@ -150,7 +165,7 @@ class ApiController
             }
             
             // Construct classname of the action handler
-            $namespace = __NAMESPACE__ . '\Api\v' . $version . '\\' . $method . '\\';
+            $namespace = self::$controllerNamespace . '\Api\v' . $version . '\\' . $method . '\\';
             
             // Define class name, dependant on request type, default is Get
             $className = 'Get';

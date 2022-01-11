@@ -3,7 +3,6 @@
 namespace DS\Component;
 
 use DS\Model\Abstracts\AbstractUser;
-use DS\Model\Client;
 use DS\Model\DataSource\UserRoles;
 use DS\Model\Stripe;
 use DS\Model\User;
@@ -45,11 +44,6 @@ class Auth
     protected $user;
     
     /**
-     * @var Client
-     */
-    protected $client;
-    
-    /**
      * @var Stripe
      */
     protected $stripe;
@@ -69,11 +63,6 @@ class Auth
     public $rememberForDays = 15;
     
     /**
-     * @var UserSettings
-     */
-    protected $userSettings = null;
-    
-    /**
      * Return internal phalcon security component
      *
      * @return \Phalcon\Security
@@ -81,32 +70,6 @@ class Auth
     public function getSecurity()
     {
         return new Security($this->getSession(), ServiceManager::instance($this->getDI())->getRequest());
-    }
-    
-    /**
-     * @return UserSettings
-     */
-    public function getUserSettings(): UserSettings
-    {
-        if (!$this->userSettings)
-        {
-            $this->userSettings = UserSettings::get($this->userId, 'userId');
-        }
-        
-        return $this->userSettings;
-    }
-    
-    /**
-     * @return Stripe
-     */
-    public function getStripe(): Stripe
-    {
-        if (!$this->stripe)
-        {
-            $this->stripe = Stripe::get($this->client->getId(), 'clientId');
-        }
-        
-        return $this->stripe;
     }
     
     /**
@@ -174,26 +137,6 @@ class Auth
     }
     
     /**
-     * @return Client
-     */
-    public function getClient(): Client
-    {
-        return $this->client;
-    }
-    
-    /**
-     * @param Client $client
-     *
-     * @return $this
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
-        
-        return $this;
-    }
-    
-    /**
      * @return int
      */
     public function getRoles(): int
@@ -227,16 +170,10 @@ class Auth
             if (!$this->user)
             {
                 $this->user   = null;
-                $this->client = Client::factory();
                 $this->userId = 0;
                 
                 return $this;
                 
-            }
-            else
-            {
-                // Load client as well
-                $this->client = Client::findFirstById($this->user->getClientId());
             }
             
             // and user roles
@@ -247,8 +184,12 @@ class Auth
         }
         else
         {
-            $this->client = Client::factory();
             $this->user   = null;
+        }
+        
+        // onUserLoaded Hook:
+        if (method_exists($this, 'onUserLoaded')) {
+            $this->onUserLoaded();
         }
         
         return $this;
@@ -422,7 +363,6 @@ class Auth
         }
         else
         {
-            $this->client = Client::factory();
             $this->userId = 0;
         }
     }

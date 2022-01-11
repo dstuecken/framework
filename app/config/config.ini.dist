@@ -4,7 +4,7 @@ host = "_MYSQL_HOST_"
 port = _MYSQL_PORT
 username = "_MYSQL_USER"
 password = "_MYSQL_PASS"
-dbname = "rarelytics"
+dbname = "dsframework"
 
 [application]
 controllersDir = "app/Controller/"

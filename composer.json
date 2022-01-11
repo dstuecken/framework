@@ -45,12 +45,12 @@
     "php-http/guzzle6-adapter": "^2.0@dev",
     "swiftmailer/swiftmailer": "6.2.x-dev",
     "sendgrid/sendgrid": "dev-main",
-    "vlucas/phpdotenv": "5.3.x-dev",
+    "vlucas/phpdotenv": "5.4.*",
     "ramsey/uuid": "4.x-dev",
-    "orangesoft/throttler": "dev-main",
+    "orangesoft/throttler": "1.1.2",
     "psr/http-message": "1.0.x-dev",
     "caseyamcl/guzzle_retry_middleware": "^2.6",
-    "erusev/parsedown": "dev-master",
+    "erusev/parsedown": "dev-master"
   },
   "autoload": {
     "psr-4": {

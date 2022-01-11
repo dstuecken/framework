@@ -15,7 +15,7 @@ use Phalcon\Logger;
  * @package   DS\Controller
  */
 class IndexController
-    extends BaseController
+    extends BaseFrontendController
 {
     /**
      * Home
@@ -24,7 +24,7 @@ class IndexController
     {
         try
         {
-        
+            die("Override the IndexController for the index route \"/\".");
         }
         catch (Exception $e)
         {
