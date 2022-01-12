@@ -2,6 +2,7 @@ PHP boilerplate code that most of my php projects share.
 
 Requires
 
+```
   php: >=7.3
   ext-json: *
   ext-pdo: *
@@ -41,3 +42,4 @@ Requires
   swiftmailer/swiftmailer: 6.2.x-dev
   symfony/options-resolver: ^3.4
   vlucas/phpdotenv: 5.4.*
+  ```
