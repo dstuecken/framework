@@ -341,21 +341,56 @@ class CliApplication
             ->writeln(" <Note>php</Note> cli/cli.php taskName")
             ->writeln('');
         
-        $commandsPath = APP_PATH . 'Task/';
-        $directory    = new \RecursiveIteratorIterator(
+        if (isset($this->config['namespaces']['task']))
+        {
+            $commandsPath = ROOT_PATH . 'app';
+        }
+        else
+        {
+            $commandsPath = APP_PATH . 'Task/';
+        }
+        $directory = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($commandsPath, \FilesystemIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::SELF_FIRST
         );
         
-        $output->writeln("Possible tasknames are:");
+        $foundTasks = [];
+        
         foreach ($directory as $object)
         {
-            if (strstr($object->getFileName(), 'Task'))
+            if ($object->getFileName() === 'TaskHelpers')
+            {
+                continue;
+            }
+            
+            if (strpos(strrev($object->getFileName()), 'php.ksaT') === 0)
+            {
+                $foundTasks[] = $object;
+            }
+        }
+        
+        if (count($foundTasks) > 0)
+        {
+            $output->writeln("Possible tasknames are:");
+            foreach ($foundTasks as $object)
             {
                 $task = str_replace(['.php', 'Task'], '', $object->getFileName());
                 
                 $output->writeln(' <Comment>' . $task . '</Comment>');
             }
+        }
+        else
+        {
+            if (isset($this->config['namespaces']['task']))
+            {
+                $namespace = $this->config['namespaces']['task'];
+            }
+            else
+            {
+                $namespace = 'Not Set (check Config.php)';
+            }
+            $output->writeln(' There was no task found inside of your root directory: <Comment>' . $commandsPath . '</Comment>.');
+            $output->writeln(' Current task namespace is: <Comment>' . $namespace . '</Comment>');
         }
     }
     
@@ -392,7 +427,16 @@ class CliApplication
             }
             
             // Setup args (task, action, params) for console
-            $args['task']   = "DS\\Task\\" . $this->task;
+            if (isset($this->config['namespaces']['task']))
+            {
+                $namespace    = $this->config['namespaces']['task'];
+                $args['task'] = $namespace . '\\' . $this->task;
+            }
+            else
+            {
+                $args['task'] = "DS\\Task\\" . $this->task;
+            }
+            
             $args['action'] = !empty($this->action) ? $this->action : 'main';
             $args['params'] = $this->params;
             $args['flags']  = $this->flags;

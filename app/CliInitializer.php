@@ -59,9 +59,9 @@ final class CliInitializer
         
         try
         {
-            $di = Initializer::boot($config);
+            self::$di = Initializer::boot($config);
             
-            return $di;
+            return self::$di;
         }
         catch (\Exception $e)
         {
