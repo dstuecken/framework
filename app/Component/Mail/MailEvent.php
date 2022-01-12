@@ -137,16 +137,12 @@ class MailEvent
      */
     public function send($force = false)
     {
+        $mode = $this->serviceManager->getConfig()->get('mode');
         // Send all emails to a specific email address in development (for testing purposes)
-        if ($this->serviceManager->getConfig()->get('mode') === 'development')
+        if ($mode === 'development' || $mode === 'test')
         {
-            $this->message->to($this->serviceManager->getConfig()->get('mail')['test-email']);
-            $force = true;
-        }
-        // Send all emails to a specific email address in test (for testing purposes)
-        elseif ($this->serviceManager->getConfig()->get('mode') === 'test')
-        {
-            $this->message->to($this->serviceManager->getConfig()->get('mail')['test-email']);
+            $mailConfig = $this->serviceManager->getConfig()->get('mail');
+            $this->message->to($mailConfig['catchall'][$mode]);
             $force = true;
         }
 

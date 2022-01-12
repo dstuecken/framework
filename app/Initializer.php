@@ -4,6 +4,7 @@ namespace DS;
 
 use DS\Component\ServiceManager;
 use DS\Constants\Services;
+use DS\Controller\ApiController;
 use Phalcon\Config;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\Di\FactoryDefault\Cli;
@@ -37,7 +38,7 @@ final class Initializer
      */
     public static function boot(Config $config)
     {
-        $pwd = dirname(__DIR__);
+        $pwd = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         
         // Do App Initialization
         try
@@ -48,8 +49,11 @@ final class Initializer
             define('DSFW_VERSION', '1.0.2b');
             
             // Directories
-            define('APP_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
-            define('ROOT_PATH', dirname(APP_PATH) . DIRECTORY_SEPARATOR);
+            define('APP_PATH', __DIR__ . DIRECTORY_SEPARATOR);
+            if (!defined('ROOT_PATH'))
+            {
+                define('ROOT_PATH', dirname(APP_PATH) . DIRECTORY_SEPARATOR);
+            }
             
             // Setting default timezone to PST
             date_default_timezone_set('America/Los_Angeles');
@@ -86,6 +90,12 @@ final class Initializer
             // Attach config as a service
             $di[Services::CONFIG] = $config;
             
+            // Define API namespace if available in config
+            if (isset($config['namespaces']['api']))
+            {
+                ApiController::setControllerNamespace($config['namespaces']['api']);
+            }
+        
             // Setting AWS environmental variables to prevent error message:
             // Error retrieving credentials from the instance profile metadata server.
             //putenv(\Aws\Credentials\CredentialProvider::ENV_KEY . '=' . $config->get('files')->aws->credentials->key);

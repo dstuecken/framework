@@ -16,7 +16,17 @@ use Phalcon\Mvc\Router;
 return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\FactoryDefault $di) {
     // Register Router
     $router = new Router();
-    $router->setDefaultNamespace('DS\Controller');
+    
+    $config = $application->getConfig();
+    
+    if (isset($config['namespaces']['controller']))
+    {
+        $router->setDefaultNamespace($config['namespaces']['controller']);
+    }
+    else
+    {
+        $router->setDefaultNamespace('DS\Controller');
+    }
     
     $router->setDefaultController('Index');
     $router->setDefaultAction('index');
@@ -26,6 +36,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}",
         [
+            'namespace' => 'DS\Controller',
             'controller' => 'Api',
             'action' => 'route',
         ]
@@ -33,6 +44,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/:action",
         [
+            'namespace' => 'DS\Controller',
             'controller' => 'Api',
             'action' => 'route',
             'subaction' => 3,
@@ -41,6 +53,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/:action/([a-zA-Z0-9\-]+)",
         [
+            'namespace' => 'DS\Controller',
             'controller' => 'Api',
             'action' => 'route',
             'subaction' => 3,
@@ -64,18 +77,19 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     
     /**
      * Attach manual routes
+     *
      * @todo: better way to attach routes to the framework
-    $manualRoutes = include __DIR__ . '../../bootstrap/Routes.php';
-    foreach ($manualRoutes as $route)
-    {
-        $router
-            ->add(
-                $route['url'],
-                $route['paths'],
-                $route['methods'] ?? ['GET', 'POST']
-            )
-            ->setName($route['name'] ?? $route['url']);
-    }*/
+     * $manualRoutes = include __DIR__ . '../../bootstrap/Routes.php';
+     * foreach ($manualRoutes as $route)
+     * {
+     * $router
+     * ->add(
+     * $route['url'],
+     * $route['paths'],
+     * $route['methods'] ?? ['GET', 'POST']
+     * )
+     * ->setName($route['name'] ?? $route['url']);
+     * }*/
     
     // Register a 404
     // This unfortunately did not work, so i am using the dispatcher workaround below
@@ -106,6 +120,8 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                 }
             );
             */
+            
+            $config = $application->getConfig();
             
             /** @noinspection PhpUnusedParameterInspection */
             $evManager->attach(
@@ -152,12 +168,15 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                 function ($event, PhDispatcher $dispatcher, Exception $exception) {
                     \DS\Component\ServiceManager::instance($dispatcher->getDI())->getLogger()->debug($exception->getMessage());
                     
+                    $dispatcher->setDefaultNamespace('DS\Controller');
+                    
                     switch ($exception->getCode())
                     {
                         case 2: // Controller not found
                         case 5: // Index was not found
                             $dispatcher->forward(
                                 [
+                                    'namespace' => 'DS\Controller',
                                     'controller' => 'Error',
                                     'action' => 'notFound',
                                 ]
@@ -167,6 +186,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                         case 1:
                             $dispatcher->forward(
                                 [
+                                    'namespace' => 'DS\Controller',
                                     'controller' => 'Error',
                                     'action' => 'error',
                                     'params' => [

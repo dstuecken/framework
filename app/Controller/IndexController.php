@@ -2,7 +2,6 @@
 
 namespace DS\Controller;
 
-use DS\Model\Client;
 use Phalcon\Exception;
 use Phalcon\Logger;
 
