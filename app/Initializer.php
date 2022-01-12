@@ -35,8 +35,10 @@ final class Initializer
      * Boot up the framework
      *
      * @param Config $config
+     *
+     * @return FactoryDefault|null
      */
-    public static function boot(Config $config)
+    public static function boot(Config $config): ?FactoryDefault
     {
         $pwd = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         
@@ -111,6 +113,8 @@ final class Initializer
             }*/
             
             self::$di = $di;
+            
+            return $di;
         }
         catch (\Exception $e)
         {
@@ -160,5 +164,6 @@ final class Initializer
             }
         }
         
+        return null;
     }
 }
