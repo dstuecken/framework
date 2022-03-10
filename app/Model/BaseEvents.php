@@ -2,7 +2,6 @@
 
 namespace DS\Model;
 
-use Phalcon\Logger;
 use Phalcon\Mvc\Model;
 
 /**
@@ -24,6 +23,55 @@ abstract class BaseEvents
     extends Model
 {
     /**
+     * Fires an event with the current class instances namespace.
+     *
+     * E.g.: Namespace\Model:afterSave
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    protected function fireInstanceEvent(string $name)
+    {
+        if ($eventsManager = $this->getEventsManager())
+        {
+            $eventsManager->fire(get_class($this) . ':' . $name, $this);
+        }
+    }
+    
+    /**
+     * @return void
+     */
+    public function beforeSave()
+    {
+        $this->fireInstanceEvent('beforeSave');
+    }
+    
+    /**
+     * @return void
+     */
+    public function afterSave()
+    {
+        $this->fireInstanceEvent('afterSave');
+    }
+    
+    /**
+     * @return void
+     */
+    public function afterCreate()
+    {
+        $this->fireInstanceEvent('afterCreate');
+    }
+    
+    /**
+     * @return void
+     */
+    public function beforeCreate()
+    {
+        $this->fireInstanceEvent('beforeCreate');
+    }
+    
+    /**
      * Set timestamps and updated user id
      *
      * @return bool
@@ -31,15 +79,15 @@ abstract class BaseEvents
     public function beforeValidationOnCreate()
     {
         $time = time();
-
+        
         if (property_exists($this, 'createdAt') && !$this->createdAt)
         {
             $this->createdAt = $time;
         }
-
+        
         return true;
     }
-
+    
     /**
      * @return bool
      */
@@ -47,7 +95,7 @@ abstract class BaseEvents
     {
         return true;
     }
-
+    
     /**
      * Do some checks fore saving/inserting
      */
@@ -58,12 +106,12 @@ abstract class BaseEvents
         {
             $this->updatedAt = $time;
         }
-
+        
         if (property_exists($this, 'updatedById'))
         {
             $this->updatedById = auth()->getUserId();
         }
-
+        
         return true;
     }
 }

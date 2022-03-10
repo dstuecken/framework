@@ -165,7 +165,9 @@ class CliApplication
          *        changed the way service closures are bound to an object
          * @see   https://github.com/phalcon/cphalcon/issues/11029#issuecomment-200612702
          */
-        $servMan = ServiceManager::instance($di)->initialize(self::$instance, ['Router', 'Response']);
+        $servMan = ServiceManager::instance($di);
+        $servMan->setEventsManager($manager);
+        $servMan->initialize(self::$instance, ['Router', 'Response']);
         
         self::$instance->setServiceManager($servMan);
         self::$instance->logger = $servMan->getCliLogger();

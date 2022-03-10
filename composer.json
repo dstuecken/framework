@@ -1,7 +1,7 @@
 {
   "name": "dstuecken/framework",
   "description": "Dennis Stücken",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "proprietary",
   "type": "library",
   "minimum-stability": "dev",
