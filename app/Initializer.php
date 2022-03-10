@@ -69,7 +69,7 @@ final class Initializer
             // APP Version
             define('DSFW_VERSION', '1.0.2d');
             if (!defined('APP_VERSION')) {
-                defined('APP_VERSION', DSFW_VERSION);
+                define('APP_VERSION', DSFW_VERSION);
             }
             
             // Directories
