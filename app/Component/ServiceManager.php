@@ -17,6 +17,8 @@ use Phalcon\Cache\Adapter\AdapterInterface;
 use Phalcon\Config;
 use Phalcon\Di;
 use Phalcon\Events\EventsAwareInterface;
+use Phalcon\Events\Manager;
+use Phalcon\Events\ManagerInterface;
 use Phalcon\Flash\FlashInterface;
 use Phalcon\Http\Response\Cookies;
 
@@ -74,8 +76,6 @@ use Phalcon\Http\Response\Cookies;
  */
 class ServiceManager implements EventsAwareInterface
 {
-    use EventsAwareTrait;
-    
     /**
      * Service Directory
      *
@@ -92,6 +92,29 @@ class ServiceManager implements EventsAwareInterface
      * @var Di
      */
     protected $di;
+    
+    /**
+     * @param ManagerInterface $eventsManager
+     *
+     * @return void
+     */
+    public function setEventsManager(ManagerInterface $eventsManager): void
+    {
+        $this->di->set('eventsManager', $eventsManager);
+    }
+    
+    /**
+     * @return ManagerInterface
+     */
+    public function getEventsManager(): ManagerInterface
+    {
+        if (!$this->di['eventsManager'])
+        {
+            $this->setEventsManager(new Manager());
+        }
+        
+        return $this->di['eventsManager'];
+    }
     
     /**
      * Sets the dependency injector

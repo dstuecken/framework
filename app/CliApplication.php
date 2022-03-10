@@ -9,6 +9,7 @@ use DS\Interfaces\GeneralApplication;
 use Phalcon\Cli\Console;
 use Phalcon\Config;
 use Phalcon\Di\DiInterface;
+use Phalcon\Events\ManagerInterface;
 use Phalcon\Exception;
 use Phalcon\Logger;
 use Phalcon\Logger\Adapter\Stream as StreamAdapter;
@@ -137,17 +138,23 @@ class CliApplication
     }
     
     /**
-     * @param DiInterface $di
-     * @param Config      $config
+     * @param DiInterface           $di
+     * @param ManagerInterface|null $manager
      *
      * @return CliApplication
      * @throws Exception
      */
-    public static function initialize(DiInterface $di): CliApplication
+    public static function initialize(DiInterface $di, ?ManagerInterface $manager): CliApplication
     {
         if (!self::$instance)
         {
             self::$instance = new self($di);
+        }
+        
+        // Pass on events manager if set
+        if (null !== $manager)
+        {
+            self::$instance->setEventsManager($manager);
         }
         
         /**

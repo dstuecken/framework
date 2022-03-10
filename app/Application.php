@@ -166,6 +166,13 @@ class Application
                 ->registerServices()
                 // Do session management
                 ->sessionManagement();
+    
+            // Pass on event-manager to databases
+            if (null !== $manager)
+            {
+                self::$instance->serviceManager->getReadDatabase()->setEventsManager($manager);
+                self::$instance->serviceManager->getWriteDatabase()->setEventsManager($manager);
+            }
         }
         catch (UserNoAccessException $e)
         {

@@ -23,9 +23,13 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                         },
                 ]
             );
-
+            
+            if ($eventsManager = \DS\Component\ServiceManager::instance($di)->getEventsManager())
+            {
+                $view->setEventsManager($eventsManager);
+            }
+            
             return $view;
-
         }
     );
 };
