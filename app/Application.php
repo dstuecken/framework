@@ -7,8 +7,11 @@ use DS\Component\ServiceManager;
 use DS\Constants\Services;
 use DS\Exceptions\UserNoAccessException;
 use DS\Interfaces\GeneralApplication;
+use DS\Traits\EventsAwareTrait;
 use Phalcon\Config;
 use Phalcon\Di\FactoryDefault;
+use Phalcon\Events\EventsAwareInterface;
+use Phalcon\Events\ManagerInterface;
 use Phalcon\Exception;
 use Phalcon\Logger;
 use Phalcon\Mvc\Application as PhalconApplication;
@@ -26,8 +29,9 @@ use Phalcon\Mvc\Application as PhalconApplication;
  */
 class Application
     extends PhalconApplication
-    implements GeneralApplication
+    implements GeneralApplication, EventsAwareInterface
 {
+    use EventsAwareTrait;
     
     /**
      * @var Application
@@ -133,17 +137,26 @@ class Application
     }
     
     /**
-     * @param FactoryDefault $di
+     * @param FactoryDefault   $di
+     * @param ManagerInterface $manager
      *
      * @return Application
      */
-    public static function initialize(FactoryDefault $di): Application
+    public static function initialize(FactoryDefault $di, ?ManagerInterface $manager): Application
     {
+        // Initialize protected instance
         if (!self::$instance)
         {
             self::$instance = new Application($di);
         }
         
+        // Pass on events manager if set
+        if (null !== $manager)
+        {
+            self::$instance->setEventsManager($manager);
+        }
+        
+        // Add application to dependency manager
         $di->set(Services::APPLICATION, self::$instance);
         
         try
@@ -171,6 +184,8 @@ class Application
      */
     public function sessionManagement(): Application
     {
+        $this->getEventsManager()->fire('application:beforeSessionManagement', $this);
+        
         // Initialize session by accessing auth from DI; This should stay here, otherwize the session will
         // start at the first ->loggedIn() call in the template, which is far too late
         $auth = $this->serviceManager->getAuth();
@@ -181,14 +196,7 @@ class Application
             $this->serviceManager->getMixpanel()->register('userId', $auth->getUserId());
         }
         
-        // Check if user is logged in and has no access to the product
-        if ($auth->loggedIn() && !$auth->hasAccess())
-        {
-            throw new UserNoAccessException(
-                "Your account has not been activated. \n" .
-                "Please join our Discord (https://discord.gg/9vKEA8ryxd) for details on how to get access to Dennis Stücken.", $auth->getUser()
-            );
-        }
+        $this->getEventsManager()->fire('application:afterSessionManagement', $this, ['auth' => $auth, 'serviceManager' => $this->serviceManager]);
         
         return $this;
     }
@@ -250,6 +258,8 @@ class Application
      */
     private function registerServices(): Application
     {
+        $this->getEventsManager()->fire('application:beforeRegisterServices', $this);
+        
         // Get base Uri
         self::$baseUri = $this->config['baseurl'];
         
@@ -262,6 +272,7 @@ class Application
          * @see   https://github.com/phalcon/cphalcon/issues/11029#issuecomment-200612702
          */
         $this->serviceManager = ServiceManager::instance($this->getDI());
+        $this->serviceManager->setEventsManager($this->getEventsManager());
         $this->serviceManager->initialize($this);
         
         if ($this->getMode() === 'development')
@@ -283,6 +294,8 @@ class Application
                     );
             }
         }
+        
+        $this->getEventsManager()->fire('application:afterRegisterServices', $this);
         
         return $this;
     }

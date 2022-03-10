@@ -8,6 +8,7 @@ use DS\Controller\ApiController;
 use Phalcon\Config;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\Di\FactoryDefault\Cli;
+use Phalcon\Events\Manager;
 use Phalcon\Http\Response;
 use Phalcon\Loader;
 
@@ -19,6 +20,23 @@ final class Initializer
     private static $di;
     
     /**
+     * @var ?Manager
+     */
+    private static $eventsManager;
+    
+    /**
+     * Passes on given events manager to Application instance
+     *
+     * @param Manager $eventsManager
+     *
+     * @return void
+     */
+    public static function setEventsManager(Manager $eventsManager)
+    {
+        self::$eventsManager = $eventsManager;
+    }
+    
+    /**
      * Handle request
      *
      * @return mixed
@@ -26,9 +44,10 @@ final class Initializer
     public static function handleRequest()
     {
         // Handle the request
-        return Application::initialize(self::$di)->handle(
-            ServiceManager::instance(self::$di)->getRequest()->getURI()
-        );
+        return Application::initialize(self::$di, self::$eventsManager)
+                          ->handle(
+                              ServiceManager::instance(self::$di)->getRequest()->getURI()
+                          );
     }
     
     /**
@@ -48,7 +67,10 @@ final class Initializer
             include_once $pwd . 'app/bootstrap/Functions.php';
             
             // APP Version
-            define('DSFW_VERSION', '1.0.2b');
+            define('DSFW_VERSION', '1.0.2d');
+            if (!defined('APP_VERSION')) {
+                defined('APP_VERSION', DSFW_VERSION);
+            }
             
             // Directories
             define('APP_PATH', __DIR__ . DIRECTORY_SEPARATOR);
@@ -97,7 +119,7 @@ final class Initializer
             {
                 ApiController::setControllerNamespace($config['namespaces']['api']);
             }
-        
+            
             // Setting AWS environmental variables to prevent error message:
             // Error retrieving credentials from the instance profile metadata server.
             //putenv(\Aws\Credentials\CredentialProvider::ENV_KEY . '=' . $config->get('files')->aws->credentials->key);

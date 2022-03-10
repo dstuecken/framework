@@ -51,7 +51,7 @@ class VoltAdapter extends Volt
                 "path" => $application->getRootDirectory() . "system/cache/volt/",
                 'stat' => true, // setting this to false produces an error "The argument is not initialized or iterable()" for some templates
                 'always' => $isDev,
-                'prefix' => 'v' . DSFW_VERSION, // todo: add build name here to ensure it always compiles new on a new production build
+                'prefix' => 'v' . APP_VERSION, // todo: add build name here to ensure it always compiles new on a new production build
             ]
         );
         

@@ -12,9 +12,11 @@ use DS\Component\Text\Url;
 use DS\Component\Twitter\TwitterApi;
 use DS\Component\View\Breadcrumbs\Breadcrumbs;
 use DS\Interfaces\GeneralApplication;
+use DS\Traits\EventsAwareTrait;
 use Phalcon\Cache\Adapter\AdapterInterface;
 use Phalcon\Config;
 use Phalcon\Di;
+use Phalcon\Events\EventsAwareInterface;
 use Phalcon\Flash\FlashInterface;
 use Phalcon\Http\Response\Cookies;
 
@@ -70,8 +72,10 @@ use Phalcon\Http\Response\Cookies;
  * @method SqsClient getSqsClient()
  * @method Client getDiscord()
  */
-class ServiceManager
+class ServiceManager implements EventsAwareInterface
 {
+    use EventsAwareTrait;
+    
     /**
      * Service Directory
      *
@@ -183,6 +187,8 @@ class ServiceManager
                 // else: Service is registered elsewhere
             }
         }
+        
+        $this->getEventsManager()->fire('serviceManager:initialize', $this);
         
         return $this;
     }

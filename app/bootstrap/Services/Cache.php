@@ -47,7 +47,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
             return new \DS\Component\Cache\Redis(
                 [
                     "lifetime" => \DS\Model\Helper\Seconds::DaysOne,
-                    "prefix" => "fw.cache." . DSFW_VERSION . ".",
+                    "prefix" => "fw.cache." . APP_VERSION . ".",
                     'host' => $config['redis']['host'],
                     'port' => $config['redis']['port'],
                     "persistent" => true,
@@ -93,7 +93,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                         'host' => $config['redis']['host'],
                         'port' => $config['redis']['port'],
                         "lifetime" => \DS\Model\Helper\Seconds::WeeksOne,
-                        "prefix" => "fw." . DSFW_VERSION . ".metadata.",
+                        "prefix" => "fw." . APP_VERSION . ".metadata.",
                         'index' => 1,
                     ]
                 );
