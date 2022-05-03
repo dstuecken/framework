@@ -46,7 +46,7 @@
     "swiftmailer/swiftmailer": "6.2.x-dev",
     "sendgrid/sendgrid": "dev-main",
     "vlucas/phpdotenv": "5.4.*",
-    "ramsey/uuid": "4.x-dev",
+    "ramsey/uuid": "3.9.*",
     "orangesoft/throttler": "1.1.2",
     "psr/http-message": "1.0.x-dev",
     "caseyamcl/guzzle_retry_middleware": "^2.6",
