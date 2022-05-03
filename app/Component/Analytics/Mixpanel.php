@@ -2,8 +2,6 @@
 
 namespace DS\Component\Analytics;
 
-use DS\Model\User;
-
 /**
  * DS-Framework
  *
@@ -33,14 +31,24 @@ class Mixpanel
      */
     public function register($property, $value)
     {
+        if (!$this->mp)
+        {
+            return;
+        }
+        
         $this->mp->register($property, $value);
     }
     
     /**
-     * @return \Producers_MixpanelPeople
+     * @return \Producers_MixpanelPeople?
      */
-    public function getPeople(): \Producers_MixpanelPeople
+    public function getPeople()
     {
+        if (!$this->mp)
+        {
+            return null;
+        }
+    
         return $this->mp->people;
     }
     
@@ -52,8 +60,13 @@ class Mixpanel
      *
      * @return $this
      */
-    public function track(string $event, array $properties = [])
+    public function track(string $event, array $properties = []): Mixpanel
     {
+        if (!$this->mp)
+        {
+            return $this;
+        }
+        
         if (isset($this->timers[$event]))
         {
             $timeEnd                      = microtime(true);
@@ -76,8 +89,13 @@ class Mixpanel
      *
      * @return $this
      */
-    public function trackCharge(int $userId, float $amount)
+    public function trackCharge(int $userId, float $amount): Mixpanel
     {
+        if (!$this->mp)
+        {
+            return $this;
+        }
+        
         $this->mp->people->trackCharge($userId, $amount, time());
         
         return $this;
@@ -86,15 +104,19 @@ class Mixpanel
     /**
      * Identify the user you want to associate to tracked events
      *
-     * @param User $user
+     * @param string $userId
      *
      * @return $this
      */
-    public function identify(User $user)
+    public function identify(string $userId): Mixpanel
     {
-        $this->mp->identify($user->getId());
-        $this->register('userId', $user->getId());
-        $this->register('clientId', $user->getClientId());
+        if (!$this->mp)
+        {
+            return $this;
+        }
+        
+        $this->mp->identify($userId);
+        $this->register('userId', $userId);
         
         return $this;
     }
@@ -107,6 +129,9 @@ class Mixpanel
      */
     public function __construct(string $key, $options = [])
     {
-        $this->mp = \Mixpanel::getInstance($key, $options);
+        if (class_exists('\Mixpanel'))
+        {
+            $this->mp = \Mixpanel::getInstance($key, $options);
+        }
     }
 }

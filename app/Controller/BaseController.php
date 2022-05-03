@@ -160,14 +160,12 @@ abstract class BaseController
     }
     
     /**
-     * Check for a given authorization based on UserRoles.
-     * Admin Role doesn't have to be checked explicitly since admins are allowed to do anything.
+     * Fires an event that can be responsible for checking the users auth roles.
      *
      * @param array $anyRoles
-     * @param bool  $redirectToHome
+     * @param       $redirectToHome
      *
      * @return bool
-     * @throws PermissionDeniedException
      * @throws RuntimeException
      */
     protected function authorizationCheck(array $anyRoles, $redirectToHome = true): bool
@@ -177,28 +175,7 @@ abstract class BaseController
             throw new RuntimeException('ServiceManager is not initialized.');
         }
         
-        $auth = $this->serviceManager->getAuth();
-        
-        // Admins can do anything
-        if ($auth->isAdmin())
-        {
-            return true;
-        }
-        
-        // Check given roles
-        foreach ($anyRoles as $role)
-        {
-            if (!$auth->getUser()->hasRole($role))
-            {
-                if ($redirectToHome)
-                {
-                    header('Location: /');
-                    die;
-                }
-                
-                throw new PermissionDeniedException($role);
-            }
-        }
+        $this->eventsManager->fire('auth:authorizationCheck', $anyRoles, $redirectToHome);
         
         return true;
     }
@@ -319,15 +296,6 @@ abstract class BaseController
         if (!isset($this->view->auth))
         {
             $this->view->setVar('auth', $auth);
-        }
-        
-        // Throw Exception if the user is blocked
-        if ($auth->loggedIn() && $auth->getUser()->getStatus() == \DS\Model\DataSource\UserStatus::Blocked)
-        {
-            // Perform logout
-            $auth->removeSession();
-            
-            throw new UserBlockedException('There has been an issue with your account. Please get in touch if you’d like this resolved.');
         }
         
         $this->view->setVar('pageName', 'Unnamed Page');

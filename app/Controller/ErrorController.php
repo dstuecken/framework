@@ -25,9 +25,10 @@ class ErrorController extends PhalconMvcController
     public function notFoundAction()
     {
         $this->response->setStatusCode(404, 'Not Found');
-        ServiceManager::instance($this->getDI())->getMixpanel()->track('Error.404');
+        // ServiceManager::instance($this->getDI())->getMixpanel()->track('Error.404');
         
-        $this->callCustomErrorController('notFoundAction');
+        $this->response->setJsonContent(['error' => '404 Not Found'])->send();
+        die;
     }
     
     /**
@@ -40,12 +41,12 @@ class ErrorController extends PhalconMvcController
         $this->response->setStatusCode(500, 'Error');
         $this->view->setVar('error', $exception->getMessage());
         
-        ServiceManager::instance($this->getDI())->getMixpanel()->track('Error.500');
+        // ServiceManager::instance($this->getDI())->getMixpanel()->track('Error.500');
         
         sentryException($exception);
         
-        $this->callCustomErrorController('errorAction', $exception);
-        
+        $this->response->setJsonContent(['error' => $exception->getMessage(), 'file' => $exception->getFile(), 'line' => $exception->getLine()])->send();
+        die;
     }
     
     private function callCustomErrorController(string $method, $param = null)

@@ -166,7 +166,7 @@ class Application
                 ->registerServices()
                 // Do session management
                 ->sessionManagement();
-    
+            
             // Pass on event-manager to databases
             if (null !== $manager)
             {
@@ -191,17 +191,12 @@ class Application
      */
     public function sessionManagement(): Application
     {
+        $this->serviceManager->setEventsManager($this->getEventsManager());
         $this->getEventsManager()->fire('application:beforeSessionManagement', $this);
         
         // Initialize session by accessing auth from DI; This should stay here, otherwize the session will
         // start at the first ->loggedIn() call in the template, which is far too late
         $auth = $this->serviceManager->getAuth();
-        
-        // Add user id to mixpanel
-        if ($auth)
-        {
-            $this->serviceManager->getMixpanel()->register('userId', $auth->getUserId());
-        }
         
         $this->getEventsManager()->fire('application:afterSessionManagement', $this, ['auth' => $auth, 'serviceManager' => $this->serviceManager]);
         
@@ -230,8 +225,8 @@ class Application
             debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
             $trace = ob_get_clean();
             
-            $this->serviceManager->getSlack()->sendErrorMessage($message . ' - ' . "\nTrace:\n" . $trace);
-            $this->serviceManager->getMixpanel()->track('Error', ['message' => $message, 'trace' => $trace]);
+            // $this->serviceManager->getSlack()->sendErrorMessage($message . ' - ' . "\nTrace:\n" . $trace);
+            // $this->serviceManager->getMixpanel()->track('Error', ['message' => $message, 'trace' => $trace]);
         }
         
         return $this;

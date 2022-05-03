@@ -2,13 +2,12 @@
 
 namespace DS\Component;
 
-use DS\Model\Abstracts\AbstractUser;
-use DS\Model\DataSource\UserRoles;
-use DS\Model\Stripe;
-use DS\Model\User;
-use DS\Model\UserSettings;
+use DS\Traits\EventsAwareTrait;
+use Phalcon\Di;
 use Phalcon\Di\AbstractInjectionAware;
 use Phalcon\Di\FactoryDefault;
+use Phalcon\Events\EventsAwareInterface;
+use Phalcon\Events\Manager;
 use Phalcon\Security;
 use Phalcon\Session\ManagerInterface;
 
@@ -27,26 +26,16 @@ use Phalcon\Session\ManagerInterface;
  */
 class Auth
     extends AbstractInjectionAware
+    implements EventsAwareInterface
 {
+    use EventsAwareTrait;
     
     /**
      * Id of current user
      *
-     * @var int
+     * @var int|null
      */
-    public $userId;
-    
-    /**
-     * User Model
-     *
-     * @var User
-     */
-    protected $user;
-    
-    /**
-     * @var Stripe
-     */
-    protected $stripe;
+    public $userId = null;
     
     /**
      * User roles
@@ -70,22 +59,6 @@ class Auth
     public function getSecurity()
     {
         return new Security($this->getSession(), ServiceManager::instance($this->getDI())->getRequest());
-    }
-    
-    /**
-     * @return bool
-     */
-    public function hasAccess(): bool
-    {
-        return $this->user && $this->user->hasRole(UserRoles::Access);
-    }
-    
-    /**
-     * @return bool
-     */
-    public function isAdmin(): bool
-    {
-        return $this->user && $this->user->hasRole(UserRoles::Admin);
     }
     
     /**
@@ -129,14 +102,6 @@ class Auth
     }
     
     /**
-     * @return User
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-    
-    /**
      * @return int
      */
     public function getRoles(): int
@@ -145,101 +110,20 @@ class Auth
     }
     
     /**
-     * @param User $user
+     * @param int $roles
      *
      * @return $this
      */
-    public function setUser(User $user): Auth
+    public function setRoles($roles)
     {
-        $this->userId = (int) $user->getId();
-        $this->user   = $user;
+        $this->roles = $roles;
         
         return $this;
     }
     
     /**
-     * Load user object
-     *
-     * @return Auth
-     */
-    private function loadUser(): Auth
-    {
-        if ($this->userId > 0)
-        {
-            $this->user = User::findFirstById($this->userId);
-            if (!$this->user)
-            {
-                $this->user   = null;
-                $this->userId = 0;
-                
-                return $this;
-                
-            }
-            
-            // and user roles
-            $this->roles = $this->user->getRoles();
-            
-            // Identify mixpanel user
-            ServiceManager::instance($this->getDI())->getMixpanel()->identify($this->user);
-        }
-        else
-        {
-            $this->user   = null;
-        }
-        
-        // onUserLoaded Hook:
-        if (method_exists($this, 'onUserLoaded')) {
-            $this->onUserLoaded();
-        }
-        
-        return $this;
-    }
-    
-    /**
-     * Login
-     *
-     * @param AbstractUser $user
-     *
      * @return $this
      */
-    public function storeSession(AbstractUser $user): Auth
-    {
-        try
-        {
-            $this->session->remove('uid');
-            $this->session->set('uid', $user->getId());
-            
-            //$this->session->regenerateId(true);
-            
-            if ($user->getLastSessionId())
-            {
-                // Set session to last session id so that the old session gets removed
-                // $this->session->setId($user->getLastSessionId());
-            }
-            
-            // $this->removeSession();
-            
-            // Set user for internal usage
-            $this->userId = (int) $user->getId();
-            
-            // Store current user id in session
-            $this->session->set('uid', $this->userId);
-            
-            // Set last session id, store user in member variable and push user's new session id to db
-            $this->user = $user->setLastSessionId($this->session->getId());
-            $this->user->save();
-            
-            // Identify mixpanel user
-            ServiceManager::instance($this->getDI())->getMixpanel()->identify($this->user);
-        }
-        catch (\Exception $e)
-        {
-            application()->log($e->getMessage());
-        }
-        
-        return $this;
-    }
-    
     public function logout(): Auth
     {
         // Clear hybridauth session
@@ -247,8 +131,7 @@ class Auth
         //$redisStorage->clear();
         
         // Remove user from internal auth store
-        $this->userId = 0;
-        $this->user   = null;
+        $this->userId = null;
         
         // Remove user id explicitly just to be sure
         $this->session->remove('uid');
@@ -257,7 +140,7 @@ class Auth
     }
     
     /**
-     * Logout
+     * Remove session
      *
      * @return $this
      */
@@ -274,8 +157,7 @@ class Auth
             ServiceManager::instance()->getCookies()->set('sessToken', '')->send();
             
             // This should fix "session_regenerate_id(): Session object destruction failed. ID: user (path: )"
-            // @see https://sentry.io/coders/coders/issues/243834480/
-            // Phalcon 3.0.x may fixed this as well: https://github.com/phalcon/cphalcon/pull/12206 so i am leaving the if commented for now
+            // Phalcon 3.0.x may fixed this as well: https://github.com/phalcon/cphalcon/pull/12206 - leaving the if condition commented for now
             // if ($this->session->isStarted() && $this->session->status() === SessionAdapter::SESSION_ACTIVE)
             {
                 // Generate new session id
@@ -313,7 +195,7 @@ class Auth
      */
     public function loggedIn(): bool
     {
-        return ($this->userId > 0 && $this->user);
+        return !!$this->userId;
     }
     
     /**
@@ -348,7 +230,6 @@ class Auth
         
         if (!$this->session->isStarted())
         {
-            //$this->session->setName('tdSession');
             if (!$this->session->start())
             {
                 ServiceManager::instance($this->getDI())->getLogger()->warning(sprintf('Could not start session (%s)', $this->getSessionToken()));
@@ -359,11 +240,12 @@ class Auth
         {
             // This is needed for checking if a user is logged in or not
             $this->userId = (int) $this->session->get('uid');
-            $this->loadUser();
         }
         else
         {
-            $this->userId = 0;
+            $this->userId = null;
         }
+        
+        $this->getEventsManager()->fire('auth:sessionStarted', $this);
     }
 }

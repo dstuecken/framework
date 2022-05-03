@@ -11,8 +11,8 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $di->set(
         'mixpanel',
         function () use ($application) {
-            $config = $application->getConfig()->toArray();
-            if (isset($config['analytics']['mixpanel']))
+            $config = $application->getConfig();
+            if (isset($config->analytics->mixpanel))
             {
                 $options = [];
                 if ($application->getMode() == 'development')
