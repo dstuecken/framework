@@ -131,35 +131,6 @@ abstract class BaseController
     }
     
     /**
-     * Checking subscription status
-     */
-    protected function checkSubscriptionStatus(): void
-    {
-        $stripe = $this->serviceManager->getAuth()->getStripe();
-        
-        if ($stripe->getStatus() === 'free trial')
-        {
-            if ($stripe->getCurrentPeriodEnd() < time())
-            {
-                //$this->view->setVar('trialEnded', true);
-            }
-            
-            //$this->view->setVar('trialEndingSoon', ($stripe->getCurrentPeriodEnd() - time()) < Seconds::WeeksOne);
-        }
-        elseif ($stripe->getStatus() === 'free trial expired')
-        {
-            //$this->view->setVar('trialEnded', true);
-            //$this->view->setVar('trialEndingSoon', true);
-        }
-        elseif ($stripe->getStatus() === 'not subscribed')
-        {
-            $this->view->setVar('notSubscribed', true);
-        }
-        
-        $this->view->setVar('stripeModel', $stripe);
-    }
-    
-    /**
      * Fires an event that can be responsible for checking the users auth roles.
      *
      * @param array $anyRoles
