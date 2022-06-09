@@ -2,7 +2,6 @@
 
 namespace DS\Component\Filesystem\Flysystem;
 
-use League\Flysystem\Cached\CachedAdapter as FlysystemCachedAdapter;
 use League\Flysystem\Config;
 
 /**
