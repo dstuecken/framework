@@ -28,11 +28,11 @@ trait DiSingleton
     /**
      * Return singleton instance of current class
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param \Phalcon\Di\DiInterface $dependencyInjector
      *
      * @return static
      */
-    public static function instance(\Phalcon\DiInterface $dependencyInjector)
+    public static function instance(\Phalcon\Di\DiInterface $dependencyInjector)
     {
         $l_class = get_called_class();
         if (!isset(static::$instance[$l_class]) || is_null(static::$instance[$l_class]))
