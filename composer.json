@@ -32,7 +32,7 @@
     "symfony/options-resolver": "^3.4",
     "sentry/sentry": "^3.5",
     "league/flysystem": "2.*",
-    "league/flysystem-aws-s3-v3": "2.*",
+    "league/flysystem-aws-s3-v3": "^2.1",
     "league/csv": "9.7.*",
     "gumlet/php-image-resize": "^2.0",
     "rollbackpt/url-extractor": "^1.0",
