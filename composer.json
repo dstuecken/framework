@@ -33,7 +33,7 @@
     "sentry/sentry": "^3.5",
     "league/flysystem": "2.*",
     "league/flysystem-aws-s3-v3": "2.*",
-    "league/csv": "^9.8",
+    "league/csv": "^9.7.*",
     "gumlet/php-image-resize": "^2.0",
     "rollbackpt/url-extractor": "^1.0",
     "mixpanel/mixpanel-php": "2.*",
