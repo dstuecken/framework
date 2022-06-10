@@ -2,8 +2,8 @@
 
 namespace DS\Component\Filesystem\Flysystem;
 
-use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
+use League\Flysystem\FilesystemAdapter;
 
 /**
  * DS-Framework
@@ -16,7 +16,7 @@ use League\Flysystem\Config;
  * @version   $Version$
  * @package   DS\Component\Filesystem
  */
-interface DsFlysystemAdapterInterface extends AdapterInterface
+interface DsFlysystemAdapterInterface extends FilesystemAdapter
 {
     /**
      * @param string $forFile
@@ -24,7 +24,7 @@ interface DsFlysystemAdapterInterface extends AdapterInterface
      * @return string
      */
     public function getWebPath(string $forFile = ''): string;
-
+    
     /**
      * @return Config
      */
