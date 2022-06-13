@@ -30,7 +30,7 @@
     "kevinrob/guzzle-cache-middleware": "^4.0",
     "aws/aws-sdk-php": "^3.225",
     "symfony/options-resolver": "^3.4",
-    "sentry/sentry": "^3.5",
+    "sentry/sentry": "^3.6",
     "league/flysystem": "2.*",
     "league/flysystem-aws-s3-v3": "^2.1",
     "league/csv": "9.7.*",
