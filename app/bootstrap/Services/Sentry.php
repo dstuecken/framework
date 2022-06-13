@@ -8,6 +8,9 @@
  * @package DS
  * @version $Version$
  */
+
+use Sentry\SentrySdk;
+
 return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\FactoryDefault $di) {
     $di->setShared(
         \DS\Constants\Services::RAVENCLIENT,
@@ -21,7 +24,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
             ];
             \Sentry\init($options);
             
-            return new \Sentry\Client($options);
+            return SentrySdk::getCurrentHub()->getClient();
         }
     );
     
