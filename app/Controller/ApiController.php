@@ -112,7 +112,7 @@ class ApiController
     /**
      * Default index request
      *
-     * @return mixed
+     * @return void
      */
     public function routeAction()
     {
@@ -306,20 +306,15 @@ class ApiController
         }
         finally
         {
-            if (!$response->getError())
+            if (!$response->getError() && is_null($response->getResponse()->getContent()))
             {
-                if (is_null($response->getResponse()->getContent()))
-                {
-                    $response->setError(new Error('Api Error.', 'There was an internal error contacting the Api.', 'No response set by the api method.'));
-                }
+                $response->setError(new Error('Api Error.', 'There was an internal error contacting the Api.', 'No response set by the api method.'));
             }
             
             /**
              * Route to specific method
              */
             $response->send();
-            
-            return $response;
         }
     }
 }

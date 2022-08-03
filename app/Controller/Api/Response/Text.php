@@ -36,7 +36,8 @@ class Text extends Response
     public function set(RecordInterface $content)
     {
         $this->response->setContent($content);
-
+        $this->response->setStatusCode($content->getHTTPStatusCode());
+        
         return $this;
     }
 }

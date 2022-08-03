@@ -18,21 +18,15 @@ use DS\Model\Base;
  */
 final class Record implements \Countable, \JsonSerializable, RecordInterface
 {
+    use RecordHttpStatusCodeTrait, RecordJsonSerializeTrait;
+    
     /**
      * @var mixed
      */
     private $data;
 
     /**
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @return int|null
+     * @return mixed
      */
     public function getData()
     {
@@ -40,7 +34,7 @@ final class Record implements \Countable, \JsonSerializable, RecordInterface
     }
 
     /**
-     * @param int|null $records
+     * @param mixed $records
      *
      * @return $this
      */
@@ -76,7 +70,7 @@ final class Record implements \Countable, \JsonSerializable, RecordInterface
      *        The return value is cast to an integer.
      * @since 5.1.0
      */
-    public function count()
+    public function count(): int
     {
         return $this->data ? 1 : 0;
     }

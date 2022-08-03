@@ -84,6 +84,11 @@ class Json extends Response
 
         // Set Json content
         $this->response->setJsonContent($content);
+        
+        if ($records)
+        {
+            $this->response->setStatusCode($records->getHTTPStatusCode());
+        }
 
         return $this;
     }

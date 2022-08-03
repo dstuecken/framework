@@ -1,27 +1,32 @@
 <?php
 namespace DS\Controller\Api\Meta;
 
+use ArrayAccess;
+use Countable;
+use JsonSerializable;
+
 /**
  *
  * DS-Framework
  *
  * @author Dennis Stücken
  * @license proprietary
-
  * @copyright Dennis Stücken
  * @link https://www.dvlpr.de
  *
  * @version   $Version$
  * @package   DS\Controller
  */
-final class Records implements \ArrayAccess, \Countable, \JsonSerializable, RecordInterface
+final class Records implements ArrayAccess, Countable, JsonSerializable, RecordInterface
 {
+    use RecordHttpStatusCodeTrait, RecordJsonSerializeTrait;
+    
     /**
      * The records
      *
-     * @var array
+     * @var array|mixed
      */
-    private $data = [];
+    private $data;
 
     /**
      * Total records. In case it is only a portion.
@@ -29,14 +34,6 @@ final class Records implements \ArrayAccess, \Countable, \JsonSerializable, Reco
      * @var int
      */
     private $totals;
-
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->data;
-    }
 
     /**
      * @return array
@@ -115,7 +112,7 @@ final class Records implements \ArrayAccess, \Countable, \JsonSerializable, Reco
      *        The return value is cast to an integer.
      * @since 5.1.0
      */
-    public function count()
+    public function count(): int
     {
         return $this->totals;
     }

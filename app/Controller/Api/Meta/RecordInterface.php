@@ -17,17 +17,22 @@ namespace DS\Controller\Api\Meta;
 interface RecordInterface
 {
     /**
-     * @return array
+     * @return array|mixed
      */
     public function getData();
 
     /**
      * @return string
      */
-    public function jsonSerialize();
+    public function jsonSerialize(): string;
 
     /**
      * @return int
      */
-    public function count();
+    public function count(): int;
+    
+    /**
+     * @return int
+     */
+    public function getHTTPStatusCode(): int;
 }
