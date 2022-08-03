@@ -43,7 +43,7 @@ final class Envelope implements \JsonSerializable
      * @param RecordInterface $records
      * @param bool         $success
      */
-    public function __construct(RecordInterface $records = null, $success = true)
+    public function __construct(RecordInterface $records = null, bool $success = true)
     {
         $status = ($success) ? 'SUCCESS' : 'ERROR';
         if ($records !== null)

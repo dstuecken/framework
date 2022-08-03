@@ -37,7 +37,7 @@ class Json extends Response
      *
      * @return RecordInterface|Envelope
      */
-    private function prepare(RecordInterface $records = null, $error = false)
+    private function prepare(RecordInterface $records = null, bool $error = false)
     {
         /**
          * @var Request $request
@@ -77,7 +77,7 @@ class Json extends Response
      *
      * @return $this
      */
-    public function set(RecordInterface $records = null, $error = false)
+    public function set(RecordInterface $records = null, bool $error = false)
     {
         // Preparing response content
         $content = $this->prepare($records, $error);

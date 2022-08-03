@@ -250,7 +250,7 @@ class ApiController
                     // Attach action result to response
                     if ($actionResult instanceof RecordInterface)
                     {
-                        $response->set($actionResult);
+                        $response->set($actionResult, $actionResult->getHTTPStatusCode() !== 200);
                     }
                     else
                     {
