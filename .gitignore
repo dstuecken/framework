@@ -200,3 +200,7 @@ bin/parse-mf2
 bin/update-psl
 .phpunit.result.cache
 system/cache/lastdeploy
+/bin/codecept
+/bin/phalcon
+/bin/phalcon-migrations
+/bin/yaml-lint
