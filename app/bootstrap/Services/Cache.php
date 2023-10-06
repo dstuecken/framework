@@ -47,9 +47,11 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
             return new \DS\Component\Cache\Redis(
                 [
                     "lifetime" => \DS\Model\Helper\Seconds::DaysOne,
-                    "prefix" => "fw.cache." . APP_VERSION . ".",
-                    'host' => $config['redis']['host'],
+                    "prefix" => $config['redis']['prefix'] ?: "fw.cache." . APP_VERSION . ".",
+                    'host' => $config['redis']['host'] ?: 'localhost',
                     'port' => $config['redis']['port'],
+                    'index' => $config['redis']['index'] ?: null,
+                    'auth' => $config['redis']['auth'] ?: null,
                     "persistent" => true,
                 ]
             );
@@ -90,10 +92,11 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                 $cache = new \Phalcon\Mvc\Model\MetaData\Redis(
                     $adapterFactory,
                     [
-                        'host' => $config['redis']['host'],
+                        'host' => $config['redis']['host'] ?: 'localhost',
                         'port' => $config['redis']['port'],
+                        'auth' => $config['redis']['auth'] ?: null,
                         "lifetime" => \DS\Model\Helper\Seconds::WeeksOne,
-                        "prefix" => "fw." . APP_VERSION . ".metadata.",
+                        "prefix" => $config['redis']['prefix'] ?: "fw." . APP_VERSION . ".metadata.",
                         'index' => 1,
                     ]
                 );
