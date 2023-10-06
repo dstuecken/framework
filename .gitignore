@@ -204,3 +204,7 @@ system/cache/lastdeploy
 /bin/phalcon
 /bin/phalcon-migrations
 /bin/yaml-lint
+/.idea/framework.iml
+/.idea/php.xml
+/.idea/phpunit.xml
+/composer.phar
