@@ -48,10 +48,11 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                 new \Phalcon\Storage\AdapterFactory(new \Phalcon\Storage\SerializerFactory),
                 [
                     'prefix' => 'fw.session.',
-                    'host' => $config['redis']->host,
-                    'port' => $config['redis']->port,
+                    'host' => $config['redis']->host ?? 'localhost',
+                    'port' => $config['redis']->port ?? 6379,
+                    'auth' => $config['redis']->auth ?? null,
                     'persistent' => true,
-                    'index' => 1,
+                    'index' => $config['redis']->index ?? 1,
                 ]
             );
             
