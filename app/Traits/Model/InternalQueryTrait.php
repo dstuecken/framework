@@ -22,7 +22,7 @@ trait InternalQueryTrait
     /**
      * @var Criteria
      */
-    private $query;
+    protected $query;
     
     /**
      * @return Criteria

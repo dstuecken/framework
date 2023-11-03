@@ -86,7 +86,9 @@ class ChangePassword
         }
         else
         {
-            throw new Exception('There was an error changing your password. Please try again later or contact our support.');
+            throw new Exception(
+                'There was an error changing your password. Please try again later or contact our support.'
+            );
         }
 
         return $this;

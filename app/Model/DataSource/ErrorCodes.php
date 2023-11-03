@@ -5,8 +5,6 @@ use DS\Traits\Singleton;
 
 /**
  *
- * firewards
- *
  * @author Dennis Stücken
  * @license proprietary
 
@@ -37,6 +35,7 @@ class ErrorCodes
         self::ApiError => 'Api Error',
         self::GeneralException => 'General Exception',
         self::InvalidParameter => 'Invalid Parameter',
+        self::UserValidation => 'Validation Error',
     ];
 
     /**

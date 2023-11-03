@@ -21,7 +21,7 @@ use Phalcon\Logger;
  * @version   $Version$
  * @package   DS\Controller
  *
- * @property \Phalcon\Http\Request  request
+ * @property \Phalcon\Http\Request request
  * @property \Phalcon\Http\Response response
  *
  * @method Di\FactoryDefault getDi()
@@ -33,12 +33,12 @@ class ApiController
      * @var string
      */
     protected static $controllerNamespace = __NAMESPACE__;
-    
+
     /**
      * @var string
      */
     protected $actionHandlerClass = \DS\Controller\Api\ActionHandler::class;
-    
+
     /**
      * @param string $controllerNamespace
      *
@@ -48,7 +48,7 @@ class ApiController
     {
         self::$controllerNamespace = $controllerNamespace;
     }
-    
+
     /**
      * Initialize controller and define index view
      */
@@ -58,23 +58,23 @@ class ApiController
         {
             $this->request = $this->getDI()->get('request');
         }
-        
+
         parent::initialize();
     }
-    
+
     /**
      * Log exceptions thrown within the api method
      *
      * @param \Exception $e
-     * @param string     $method
-     * @param string     $action
-     * @param string     $respüonseType
+     * @param string $method
+     * @param string $action
+     * @param string $respüonseType
      */
     protected function logException($e, $method = '', $action = '', $responseType = '')
     {
         // Log exception to sentry
         $client = ServiceManager::instance($this->getDi())->getRavenClient();
-        
+
         try
         {
             if ($client)
@@ -91,7 +91,7 @@ class ApiController
                     ]
                 );
             }
-            
+
             // Log exception to system log
             application()->log(
                 (method_exists($e, 'getErrorCode') ? $e->getErrorCode() . ':' : '') . $e->getMessage() . ' - ' .
@@ -108,7 +108,7 @@ class ApiController
             file_put_contents(ROOT_PATH . 'system/log/failure', $e->getMessage() . ' - ' . $e->getTraceAsString());
         }
     }
-    
+
     /**
      * Default index request
      *
@@ -120,22 +120,22 @@ class ApiController
          * @var Di $di
          */
         $di = $this->getDi();
-        
+
         // Disable view processing since the api has it's own responses
         $this->view->disable();
-        
+
         // Prepare some request variables
         $version = $this->dispatcher->getParam("version");
         $method  = $this->dispatcher->getParam("method");
         $action  = $this->dispatcher->getParam("subaction");
         $id      = $this->dispatcher->getParam("id");
         $auth    = ServiceManager::instance($this->getDI())->getAuth();;
-        
+
         /**
          * Switch between response types, default is json
          */
         $responseType = $this->request->get('type', 'string', 'json');
-        
+
         // Set response type, default is Json
         if ($responseType === 'string')
         {
@@ -145,15 +145,9 @@ class ApiController
         {
             $response = new Json($di);
         }
-        
+
         try
         {
-            // Send CORS header to allow access from the requested domain
-            // @todo change this to the only allowed domain in production
-            //$response->getResponse()
-            //         ->setHeader('Access-Control-Allow-Origin', $this->request->getServer('HTTP_ORIGIN') ? $this->request->getServer('HTTP_ORIGIN') : $this->request->getServer('HTTP_HOST'))
-            //         ->setHeader('Access-Control-Allow-Credentials', 'true');
-            
             // Camel casing a minus-separated request
             if (strpos($method, '-') > 0)
             {
@@ -163,13 +157,13 @@ class ApiController
             {
                 $method = ucfirst($method);
             }
-            
+
             // Construct classname of the action handler
             $namespace = self::$controllerNamespace . '\Api\v' . $version . '\\' . $method . '\\';
-            
-            // Define class name, dependant on request type, default is Get
+
+            // Define class name, dependent on request type, default is Get
             $className = 'Get';
-            
+
             if ($this->request->isPost())
             {
                 $className = 'Post';
@@ -190,9 +184,9 @@ class ApiController
             {
                 $className = 'Options';
             }
-            
+
             $finalClassName = $namespace . $className;
-            
+
             // Check if api controller exists
             if (class_exists($finalClassName) && is_a($finalClassName, $this->actionHandlerClass, true))
             {
@@ -201,12 +195,16 @@ class ApiController
                  */
                 $ctrlInstance = new $finalClassName();
                 $ctrlInstance->setDi($di);
-                
+
                 // Check wheather the controller instance needs a valid login or not
                 if ($ctrlInstance->needsLogin() && !$auth->loggedIn())
                 {
                     $response->setError(
-                        new Error('Session Error', 'It seems like your session timed out. Please relogin.', ErrorCodes::SessionExpired)
+                        new Error(
+                            'Session Error',
+                            'It seems like your session timed out. Please sign-in.',
+                            ErrorCodes::SessionExpired
+                        )
                     );
                 }
                 else
@@ -215,15 +213,15 @@ class ApiController
                      * Set id and action for current action
                      */
                     $ctrlInstance->setAction($action)->setId($id);
-                    
+
                     // E-Tag handling
                     $etag = $ctrlInstance->getEtag();
-                    
+
                     if ($etag)
                     {
                         $response->getResponse()->setEtag($etag)->setHeader('Pragma', 'cache');
                         $retag = $this->request->getHeader('if-none-match');
-                        
+
                         if ($retag && $retag === $etag)
                         {
                             $response->getResponse()->setHeader('Cache-Control', 'must-revalidate');
@@ -236,17 +234,17 @@ class ApiController
                             $response->getResponse()->setCache(60 * 24);
                         }
                     }
-                    
+
                     // Call process method to process the request or initialize the controller
                     $actionResult = $ctrlInstance->process();
                     $ctrlInstance->setServiceManager($this->serviceManager);
-                    
+
                     // Then additionally call action method, if there is one
                     if ($action && method_exists($ctrlInstance, $action))
                     {
                         $actionResult = $ctrlInstance->$action();
                     }
-                    
+
                     // Attach action result to response
                     if ($actionResult instanceof RecordInterface)
                     {
@@ -276,7 +274,7 @@ class ApiController
             $response->setError(
                 new Error(
                     $e->getMessage() . ' (' . str_replace(ROOT_PATH, '', $e->getFile()) . ':' . $e->getLine() . ')',
-                    'There was an internal error. Our team is informed. Please try again in a few minutes. Sorry for this!',
+                    'There was an internal error.',
                     ErrorCodes::GeneralException
                 )
             );
@@ -294,9 +292,9 @@ class ApiController
                 ->setMore($e->getMore())
                 ->setDevMessage($e->getDevMessage())
                 ->setErrorCode($e->getErrorCode());
-            
+
             $response->setError($error);
-            
+
             $this->logException($e, $method, $action, $responseType);
         }
         catch (\Exception $e)
@@ -310,7 +308,7 @@ class ApiController
             {
                 $response->setError(new Error('Api Error.', 'There was an internal error contacting the Api.', 'No response set by the api method.'));
             }
-            
+
             /**
              * Route to specific method
              */
