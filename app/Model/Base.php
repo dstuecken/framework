@@ -26,10 +26,6 @@ use Phalcon\Escaper;
 abstract class Base
     extends BaseEvents
 {
-    /**
-     * @var ServiceManager
-     */
-    protected $serviceManager;
     
     /**
      * @var static[]
@@ -456,22 +452,6 @@ abstract class Base
     public static function factory(Di $di = null)
     {
         return new static($di);
-    }
-    
-    /**
-     * Initialize some variables for all instances
-     *
-     * Using onConstruct instead of initialize here since these initializations should be valid for all instances of this model.
-     *
-     * @see https://docs.phalconphp.com/en/3.3/db-models -> onCustruct
-     */
-    protected final function onConstruct()
-    {
-        $this->setConnectionService('write-database');
-        $this->setReadConnectionService('read-database');
-        $this->setWriteConnectionService('write-database');
-        
-        $this->serviceManager = ServiceManager::instance($this->getDI());
     }
     
     /**

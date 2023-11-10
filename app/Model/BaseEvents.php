@@ -2,6 +2,8 @@
 
 namespace DS\Model;
 
+use DS\Component\ServiceManager;
+use DS\Traits\ServiceManagerAwareTrait;
 use Phalcon\Mvc\Model;
 
 /**
@@ -22,6 +24,16 @@ use Phalcon\Mvc\Model;
 abstract class BaseEvents
     extends Model
 {
+    use ServiceManagerAwareTrait;
+
+    /**
+     * @return void
+     */
+    public function beforeSave()
+    {
+        $this->fireInstanceEvent('beforeSave');
+    }
+
     /**
      * Fires an event with the current class instances namespace.
      *
@@ -33,20 +45,13 @@ abstract class BaseEvents
      */
     protected function fireInstanceEvent(string $name)
     {
-        if ($eventsManager = $this->getEventsManager())
+        $eventsManager = $this->getEventsManager() ?: $this->serviceManager->getEventsManager();
+        if ($eventsManager)
         {
             $eventsManager->fire(get_class($this) . ':' . $name, $this);
         }
     }
-    
-    /**
-     * @return void
-     */
-    public function beforeSave()
-    {
-        $this->fireInstanceEvent('beforeSave');
-    }
-    
+
     /**
      * @return void
      */
@@ -54,7 +59,7 @@ abstract class BaseEvents
     {
         $this->fireInstanceEvent('afterSave');
     }
-    
+
     /**
      * @return void
      */
@@ -62,7 +67,7 @@ abstract class BaseEvents
     {
         $this->fireInstanceEvent('afterCreate');
     }
-    
+
     /**
      * @return void
      */
@@ -70,7 +75,7 @@ abstract class BaseEvents
     {
         $this->fireInstanceEvent('beforeCreate');
     }
-    
+
     /**
      * Set timestamps and updated user id
      *
@@ -79,15 +84,15 @@ abstract class BaseEvents
     public function beforeValidationOnCreate()
     {
         $time = time();
-        
+
         if (property_exists($this, 'createdAt') && !$this->createdAt)
         {
             $this->createdAt = $time;
         }
-        
+
         return true;
     }
-    
+
     /**
      * @return bool
      */
@@ -95,7 +100,7 @@ abstract class BaseEvents
     {
         return true;
     }
-    
+
     /**
      * Do some checks fore saving/inserting
      */
@@ -106,12 +111,35 @@ abstract class BaseEvents
         {
             $this->updatedAt = $time;
         }
-        
+
         if (property_exists($this, 'updatedById'))
         {
             $this->updatedById = auth()->getUserId();
         }
-        
+
         return true;
+    }
+
+    /**
+     * Initialize some variables for all instances
+     *
+     * Using onConstruct instead of initialize here since these initializations
+     * should be valid for all instances of this model.
+     *
+     * @see https://docs.phalconphp.com/en/3.3/db-models -> onCustruct
+     */
+    final protected function onConstruct()
+    {
+        $this->initEventsAndServices();
+    }
+
+    protected function initEventsAndServices()
+    {
+        $this->setConnectionService('write-database');
+        $this->setReadConnectionService('read-database');
+        $this->setWriteConnectionService('write-database');
+
+        $this->serviceManager = ServiceManager::instance($this->getDI());
+        $this->setEventsManager($this->serviceManager->getEventsManager());
     }
 }
