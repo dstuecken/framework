@@ -1,4 +1,5 @@
 <?php
+
 namespace DS\Controller\Api\Meta;
 
 /**
@@ -7,7 +8,6 @@ namespace DS\Controller\Api\Meta;
  *
  * @author Dennis Stücken
  * @license proprietary
-
  * @copyright Dennis Stücken
  * @link https://www.dvlpr.de
  *
@@ -30,9 +30,15 @@ interface RecordInterface
      * @return int
      */
     public function count(): int;
-    
+
     /**
      * @return int
      */
     public function getHTTPStatusCode(): int;
+
+    /**
+     * Return additional meta data for _meta envelope
+     * @return array
+     */
+    public function getMeta(): array;
 }

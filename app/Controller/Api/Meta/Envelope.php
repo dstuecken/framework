@@ -1,4 +1,5 @@
 <?php
+
 namespace DS\Controller\Api\Meta;
 
 /**
@@ -7,7 +8,6 @@ namespace DS\Controller\Api\Meta;
  *
  * @author Dennis Stücken
  * @license proprietary
-
  * @copyright Dennis Stücken
  * @link https://www.dvlpr.de
  *
@@ -41,27 +41,24 @@ final class Envelope implements \JsonSerializable
      * Envelope constructor.
      *
      * @param RecordInterface $records
-     * @param bool         $success
+     * @param bool $success
      */
-    public function __construct(RecordInterface $records = null, bool $success = true)
+    public function __construct(?RecordInterface $records = null, ?bool $success = true)
     {
-        $status = ($success) ? 'SUCCESS' : 'ERROR';
         if ($records !== null)
         {
-            $count = $records->count();
-
             $this->_meta = new MetaObject(
-                $status,
-                $count,
-                $success
+                $records->count(),
+                $success,
+                $records->getMeta(),
             );
         }
         else
         {
             $this->_meta = new MetaObject(
-                $status,
-                0,
-                $success
+                null,
+                $success,
+                $records->getMeta(),
             );
         }
 
@@ -69,18 +66,5 @@ final class Envelope implements \JsonSerializable
         {
             $this->data = $records->getData();
         }
-
-        /*
-        if ($this->_meta->count === 0)
-        {
-            // This is required to make the response JSON return an empty JS object.  Without
-            // this, the JSON return an empty array:  [] instead of {}
-            $this->data = new \stdClass();
-        }
-        else
-        {
-            $this->data = $records;
-        }
-        */
     }
 }

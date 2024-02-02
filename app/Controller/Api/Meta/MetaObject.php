@@ -1,4 +1,5 @@
 <?php
+
 namespace DS\Controller\Api\Meta;
 
 /**
@@ -7,7 +8,6 @@ namespace DS\Controller\Api\Meta;
  *
  * @author Dennis Stücken
  * @license proprietary
-
  * @copyright Dennis Stücken
  * @link https://www.dvlpr.de
  *
@@ -17,40 +17,42 @@ namespace DS\Controller\Api\Meta;
 final class MetaObject implements \JsonSerializable
 {
     /**
-     * @var int|null
+     * Meta data object
+     *
+     * @var array
      */
-    public $total = null;
-
-    /**
-     * @var bool
-     */
-    public $status;
-
-    /**
-     * @var bool
-     */
-    public $success = true;
+    public $meta = [];
 
     /**
      * @return array
      */
     function jsonSerialize()
     {
-        return [
-            'total' => $this->total,
-            // 'status' => $this->status,
-            'success' => $this->success,
-        ];
+        return $this->meta;
     }
 
     /**
      * Response constructor.
      *
      */
-    public function __construct($status, $total = 0, $success = true)
+    public function __construct(?int $total = null, ?bool $success = true, ?array $additionalData = null)
     {
-        $this->status  = $status;
-        $this->total   = $total;
-        $this->success = $success;
+        if ($total !== null)
+        {
+            $this->meta['total'] = $total;
+        }
+
+        if ($success !== null)
+        {
+            $this->meta['success'] = $success;
+        }
+
+        if ($additionalData !== null)
+        {
+            foreach ($additionalData as $key => $value)
+            {
+                $this->meta[$key] = $value;
+            }
+        }
     }
 }

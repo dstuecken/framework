@@ -1,4 +1,5 @@
 <?php
+
 namespace DS\Controller\Api\Meta;
 
 use ArrayAccess;
@@ -17,10 +18,10 @@ use JsonSerializable;
  * @version   $Version$
  * @package   DS\Controller
  */
-final class Records implements ArrayAccess, Countable, JsonSerializable, RecordInterface
+final class Records extends RecordBase implements ArrayAccess, Countable, JsonSerializable, RecordInterface
 {
     use RecordHttpStatusCodeTrait, RecordJsonSerializeTrait;
-    
+
     /**
      * The records
      *
@@ -88,7 +89,7 @@ final class Records implements ArrayAccess, Countable, JsonSerializable, RecordI
      *
      * @param mixed $records
      */
-    public function __construct(array $records, $totals = null)
+    public function __construct(array $records, ?int $totals = null, array $meta = [])
     {
         $this->data = $records;
 
@@ -100,6 +101,8 @@ final class Records implements ArrayAccess, Countable, JsonSerializable, RecordI
         {
             $this->totals = $totals;
         }
+
+        $this->meta = $meta;
     }
 
     /**
@@ -162,7 +165,7 @@ final class Records implements ArrayAccess, Countable, JsonSerializable, RecordI
      * @param mixed $offset <p>
      *                      The offset to assign the value to.
      *                      </p>
-     * @param mixed $value  <p>
+     * @param mixed $value <p>
      *                      The value to set.
      *                      </p>
      *

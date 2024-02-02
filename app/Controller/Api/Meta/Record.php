@@ -1,4 +1,5 @@
 <?php
+
 namespace DS\Controller\Api\Meta;
 
 use DS\Model\Base;
@@ -9,17 +10,16 @@ use DS\Model\Base;
  *
  * @author Dennis Stücken
  * @license proprietary
-
  * @copyright Dennis Stücken
  * @link https://www.dvlpr.de
  *
  * @version   $Version$
  * @package   DS\Controller
  */
-final class Record implements \Countable, \JsonSerializable, RecordInterface
+final class Record extends RecordBase implements \Countable, \JsonSerializable, RecordInterface
 {
     use RecordHttpStatusCodeTrait, RecordJsonSerializeTrait;
-    
+
     /**
      * @var mixed
      */
