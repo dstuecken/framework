@@ -67,7 +67,7 @@ final class Initializer
             include_once $pwd . 'app/bootstrap/Functions.php';
             
             // APP Version
-            define('DSFW_VERSION', '1.0.19');
+            define('DSFW_VERSION', '1.0.20');
             if (!defined('APP_VERSION')) {
                 define('APP_VERSION', DSFW_VERSION);
             }
