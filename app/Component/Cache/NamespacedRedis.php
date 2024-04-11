@@ -2,8 +2,6 @@
 
 namespace DS\Component\Cache;
 
-use Phalcon\Storage\SerializerFactory;
-
 /**
  * DS-Framework
  *
@@ -15,15 +13,13 @@ use Phalcon\Storage\SerializerFactory;
  * @version   $Version$
  * @package   DS\Component
  */
-class Redis
-    extends Provider
+class NamespacedRedis
+    extends Redis
 {
-    
     /**
-     * @var mixed|string
+     * @var string
      */
-    protected $cachePrefix = '';
-    
+    private $namespace = '';
 
     /**
      * Returns a cached content
@@ -36,26 +32,34 @@ class Redis
      */
     public function get(string $key, $defaultValue = null)
     {
-        return $this->backend->get($key, $defaultValue);
+        if ($this->namespace)
+        {
+            $key = $this->namespace . '.' . $key;
+        }
+
+        return parent::get($key, $defaultValue);
     }
-    
+
     /**
      * Stores cached content into the file backend and stops the frontend
      *
      * @param int|string $keyName
-     * @param string     $content
-     * @param int        $lifetime
+     * @param string $content
+     * @param int $lifetime
      *
      * @return $this
      * @throws \Phalcon\Storage\Exception
      */
     public function set($key, $value = null, $lifetime = null)
     {
-        $this->backend->set($key, $value, $lifetime);
-        
-        return $this;
+        if ($this->namespace)
+        {
+            $key = $this->namespace . '.' . $key;
+        }
+
+        return parent::set($key, $value, $lifetime);
     }
-    
+
     /**
      * Invalidate cache with a prefix
      *
@@ -66,38 +70,34 @@ class Redis
      */
     public function invalidate(string $prefix = ''): array
     {
-        $keys = $this->backend->getKeys($this->cachePrefix . ($prefix !== '' ? '.' . $prefix : ''));
-        
+        if ($this->namespace)
+        {
+            $key = $this->cachePrefix . $this->namespace . ($prefix !== '' ? '.' . $prefix : '');
+        }
+        else
+        {
+            $key = $this->cachePrefix . ($prefix !== '' ? '.' . $prefix : '');
+        }
+
+        $keys = $this->backend->getKeys($key);
+
         foreach ($keys as $key)
         {
             $this->backend->delete($key);
         }
-        
+
         return $keys;
     }
-    
+
     /**
-     * Flush whole cache
+     * @param string $namespace
      *
-     * @throws \Phalcon\Storage\Exception
+     * @return $this
      */
-    public function flush(): Redis
+    public function setNamespace(string $namespace): NamespacedRedis
     {
-        $this->backend->clear();
-        
+        $this->namespace = $namespace;
+
         return $this;
-    }
-    
-    /**
-     * Redis constructor.
-     *
-     * @param array $options
-     */
-    public function __construct(array $options)
-    {
-        $serializerFactory = new SerializerFactory();
-        $this->backend     = new \Phalcon\Cache\Adapter\Redis($serializerFactory, $options);
-        
-        $this->cachePrefix = isset($options['prefix']) ? $options['prefix'] : '';
     }
 }
