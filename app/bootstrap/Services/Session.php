@@ -55,8 +55,8 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                         'auth' => $config['redis']->auth ?? null,
                         'persistent' => FRAMEWORK_DEFAULT_SESSION_PERSISTENT,
                         'index' => $config['redis']->index ?? 1,
-                        'defaultSerializer' => $config['session']->prefix ?? FRAMEWORK_DEFAULT_SESSION_SERIALIZER,
-                        'lifetime' => $config['session']->prefix ?? 'php.session.' ?? FRAMEWORK_DEFAULT_SESSION_LIFETIME,
+                        'defaultSerializer' => $config['session']->defaultSerializer ?? FRAMEWORK_DEFAULT_SESSION_SERIALIZER,
+                        'lifetime' => $config['session']->lifetime ?? FRAMEWORK_DEFAULT_SESSION_LIFETIME,
                     ]
                 );
 
