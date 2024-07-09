@@ -22,27 +22,32 @@ use Phalcon\Mvc\Controller as PhalconMvcController;
 abstract class ActionHandler extends PhalconMvcController
 {
     use NeedsLoginTrait;
-    
+
     /**
      * @var string
      */
     protected $action;
-    
+
+    /**
+     * @var array
+     */
+    protected $params = [];
+
     /**
      * @var string
      */
     protected $id;
-    
+
     /**
      * @var ServiceManager
      */
     private $serviceManager;
-    
+
     /**
      * @var int
      */
     private $userId;
-    
+
     /**
      * Extract raw body from request
      *
@@ -57,7 +62,7 @@ abstract class ActionHandler extends PhalconMvcController
          */
         return $leaveAsJson ? $this->request->getRawBody() : $this->request->getJsonRawBody(true);
     }
-    
+
     /**
      * @return ServiceManager
      */
@@ -67,7 +72,7 @@ abstract class ActionHandler extends PhalconMvcController
         {
             $this->serviceManager = ServiceManager::instance($this->getDI());
         }
-        
+
         return $this->serviceManager;
     }
 
@@ -92,10 +97,10 @@ abstract class ActionHandler extends PhalconMvcController
         {
             $this->userId = $this->getServiceManager()->getAuth()->getUserId();
         }
-        
+
         return $this->userId;
     }
-    
+
     /**
      * Default etag is null. Null etags are not sent to browser.
      *
@@ -105,7 +110,7 @@ abstract class ActionHandler extends PhalconMvcController
     {
         return null;
     }
-    
+
     /**
      * @return string
      */
@@ -113,7 +118,7 @@ abstract class ActionHandler extends PhalconMvcController
     {
         return $this->action;
     }
-    
+
     /**
      * @param string $action
      *
@@ -122,10 +127,29 @@ abstract class ActionHandler extends PhalconMvcController
     public function setAction($action)
     {
         $this->action = $action;
-        
+
         return $this;
     }
-    
+
+    /**
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    /**
+     * @param array $params
+     * @return $this
+     */
+    public function setParams(array $params): self
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
     /**
      * @return string
      */
@@ -133,7 +157,7 @@ abstract class ActionHandler extends PhalconMvcController
     {
         return $this->id;
     }
-    
+
     /**
      * @param string $id
      *
@@ -142,10 +166,10 @@ abstract class ActionHandler extends PhalconMvcController
     public function setId($id)
     {
         $this->id = $id;
-        
+
         return $this;
     }
-    
+
     /**
      * @param Response $response
      *
@@ -154,10 +178,10 @@ abstract class ActionHandler extends PhalconMvcController
     public function setResponse(Response $response)
     {
         $this->response = $response;
-        
+
         return $this;
     }
-    
+
     /**
      * Process api request
      *

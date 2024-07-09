@@ -16,9 +16,9 @@ use Phalcon\Mvc\Router;
 return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\FactoryDefault $di) {
     // Register Router
     $router = new Router();
-    
+
     $config = $application->getConfig();
-    
+
     if (isset($config['namespaces']['controller']))
     {
         $router->setDefaultNamespace($config['namespaces']['controller']);
@@ -27,11 +27,11 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     {
         $router->setDefaultNamespace('DS\Controller');
     }
-    
+
     $router->setDefaultController('Index');
     $router->setDefaultAction('index');
     $router->removeExtraSlashes(true);
-    
+
     // Api Routes
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}",
@@ -41,26 +41,26 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
             'action' => 'route',
         ]
     );
+
     $router->add(
-        "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/:action",
+        "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/{subaction:[a-zA-Z0-9\-]+}",
         [
             'namespace' => 'DS\Controller',
             'controller' => 'Api',
             'action' => 'route',
-            'subaction' => 3,
         ]
     );
+
     $router->add(
-        "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/:action/([a-zA-Z0-9\-]+)",
+        "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/{subaction:[a-zA-Z0-9\-]+}/:params",
         [
             'namespace' => 'DS\Controller',
             'controller' => 'Api',
             'action' => 'route',
-            'subaction' => 3,
-            'id' => 4,
+            'params' => 4,
         ]
     );
-    
+
     $router->add(
         '/:controller/([a-zA-Z\-]+)/:params',
         [
@@ -74,7 +74,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
             return Phalcon\Text::camelize($action);
         }
     );
-    
+
     /**
      * Attach manual routes
      *
@@ -90,7 +90,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
      * )
      * ->setName($route['name'] ?? $route['url']);
      * }*/
-    
+
     // Register a 404
     // This unfortunately did not work, so i am using the dispatcher workaround below
     /*$router->notFound(
@@ -100,9 +100,9 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
             "action"     => "show"
         )
     );*/
-    
+
     $di->setShared('router', $router);
-    
+
     /**
      * Setup dispatcher and register a 404 template
      */
@@ -110,7 +110,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
         'dispatcher',
         function () use ($di, $application) {
             $evManager = $di->getShared('eventsManager');
-            
+
             /** @noinspection PhpUnusedParameterInspection */
             /*
             $evManager->attach(
@@ -120,9 +120,9 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                 }
             );
             */
-            
+
             $config = $application->getConfig();
-            
+
             /** @noinspection PhpUnusedParameterInspection */
             $evManager->attach(
                 "dispatch:beforeExecuteRoute",
@@ -132,10 +132,10 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                     $controllerName = \Phalcon\Text::camelize($dispatcher->getControllerName());
                     $dispatcher->setActionName($actionName);
                     $dispatcher->setControllerName($controllerName);
-                    
+
                     // Check if this page needs a login
                     $ctrl = $dispatcher->getActiveController();
-                    
+
                     if ($controllerName !== 'Login'
                         && is_a($ctrl, LoginAwareController::class))
                     {
@@ -147,7 +147,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                             // @todo may use http redirect instead?
                             //$response = new \Phalcon\Http\Response();
                             //$response->redirect('login');
-                            
+
                             // .. and if so, redirect to the login page
                             $dispatcher->forward(
                                 [
@@ -157,19 +157,19 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                             );
                         }
                     }
-                    
+
                     return true;
                 }
             );
-            
+
             /** @noinspection PhpUnusedParameterInspection */
             $evManager->attach(
                 "dispatch:beforeException",
                 function ($event, PhDispatcher $dispatcher, Exception $exception) {
                     \DS\Component\ServiceManager::instance($dispatcher->getDI())->getLogger()->debug($exception->getMessage());
-                    
+
                     $dispatcher->setDefaultNamespace('DS\Controller');
-                    
+
                     switch ($exception->getCode())
                     {
                         case 2: // Controller not found
@@ -196,14 +196,14 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                             );
                             break;
                     }
-                    
+
                     return false;
                 }
             );
-            
+
             $dispatcher = new PhDispatcher();
             $dispatcher->setEventsManager($evManager);
-            
+
             return $dispatcher;
         }
     );

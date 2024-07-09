@@ -128,8 +128,10 @@ class ApiController
         $version = $this->dispatcher->getParam("version");
         $method  = $this->dispatcher->getParam("method");
         $action  = $this->dispatcher->getParam("subaction");
-        $id      = $this->dispatcher->getParam("id");
+        $params  = $this->dispatcher->getParams();
         $auth    = ServiceManager::instance($this->getDI())->getAuth();;
+
+        unset($params['version'], $params['method'], $params['subaction']);
 
         /**
          * Switch between response types, default is json
@@ -187,86 +189,104 @@ class ApiController
 
             $finalClassName = $namespace . $className;
 
-            // Check if api controller exists
-            if (class_exists($finalClassName) && is_a($finalClassName, $this->actionHandlerClass, true))
+            // Check if a sub-class exist
+            if ($action)
             {
-                /**
-                 * @var $ctrlInstance \DS\Controller\Api\ActionHandler
-                 */
-                $ctrlInstance = new $finalClassName();
-                $ctrlInstance->setDi($di);
-
-                // Check wheather the controller instance needs a valid login or not
-                if ($ctrlInstance->needsLogin() && !$auth->loggedIn())
+                $actionClassName = $namespace . ucfirst($action) . '\\' . $className;
+                if (class_exists($actionClassName))
                 {
-                    $response->setError(
-                        new Error(
-                            'Session Error',
-                            'It seems like your session timed out. Please sign-in.',
-                            ErrorCodes::SessionExpired
-                        )
-                    );
+                    $finalClassName = $actionClassName;
                 }
-                else
-                {
-                    /**
-                     * Set id and action for current action
-                     */
-                    $ctrlInstance->setAction($action)->setId($id);
+            }
 
-                    // E-Tag handling
-                    $etag = $ctrlInstance->getEtag();
+            // Check if api controller exists
+            if (!class_exists($finalClassName) && is_a($finalClassName, $this->actionHandlerClass, true))
+            {
+                throw new InvalidParameterException('Invalid class: ' . $finalClassName);
+            }
 
-                    if ($etag)
-                    {
-                        $response->getResponse()->setEtag($etag)->setHeader('Pragma', 'cache');
-                        $retag = $this->request->getHeader('if-none-match');
+            /**
+             * @var $ctrlInstance \DS\Controller\Api\ActionHandler
+             */
+            $ctrlInstance = new $finalClassName();
+            $ctrlInstance->setDi($di);
 
-                        if ($retag && $retag === $etag)
-                        {
-                            $response->getResponse()->setHeader('Cache-Control', 'must-revalidate');
-                            $response->getResponse()->setNotModified();
-                            $response->getResponse()->send();
-                            die;
-                        }
-                        else
-                        {
-                            $response->getResponse()->setCache(60 * 24);
-                        }
-                    }
-
-                    // Call process method to process the request or initialize the controller
-                    $actionResult = $ctrlInstance->process();
-                    $ctrlInstance->setServiceManager($this->serviceManager);
-
-                    // Then additionally call action method, if there is one
-                    if ($action && method_exists($ctrlInstance, $action))
-                    {
-                        $actionResult = $ctrlInstance->$action();
-                    }
-
-                    // Attach action result to response
-                    if ($actionResult instanceof RecordInterface)
-                    {
-                        $response->set($actionResult, $actionResult->getHTTPStatusCode() !== 200);
-                    }
-                    else
-                    {
-                        // Handle possible errors
-                        if ($actionResult instanceof Error)
-                        {
-                            $response->setError($actionResult);
-                        }
-                        else
-                        {
-                            $response->set(null, false);
-                        }
-                    }
-                }
+            // Check wheather the controller instance needs a valid login or not
+            if ($ctrlInstance->needsLogin() && !$auth->loggedIn())
+            {
+                $response->setError(
+                    new Error(
+                        'Session Error',
+                        'It seems like your session timed out. Please sign-in.',
+                        ErrorCodes::SessionExpired
+                    )
+                );
             }
             else
             {
-                throw new InvalidParameterException('Invalid method: ' . $method);
+                /**
+                 * Set id and action for current action
+                 */
+                $ctrlInstance->setAction($action)->setParams($params);
+                if (!empty($params)) {
+                    $ctrlInstance->setId($params[count($params) - 1]);
+                }
+
+                // E-Tag handling
+                $etag = $ctrlInstance->getEtag();
+
+                if ($etag)
+                {
+                    $response->getResponse()->setEtag($etag)->setHeader('Pragma', 'cache');
+                    $retag = $this->request->getHeader('if-none-match');
+
+                    if ($retag && $retag === $etag)
+                    {
+                        $response->getResponse()->setHeader('Cache-Control', 'must-revalidate');
+                        $response->getResponse()->setNotModified();
+                        $response->getResponse()->send();
+                        die;
+                    }
+                    else
+                    {
+                        $response->getResponse()->setCache(60 * 24);
+                    }
+                }
+
+                // Call process method to process the request or initialize the controller
+                if (method_exists($ctrlInstance, $action))
+                {
+                    $actionResult = $ctrlInstance->$action();
+                }
+                else
+                {
+                    $actionResult = $ctrlInstance->process();
+                }
+                $ctrlInstance->setServiceManager($this->serviceManager);
+
+                // Then additionally call action method, if there is one
+                if ($action && method_exists($ctrlInstance, $action))
+                {
+                    $actionResult = $ctrlInstance->$action();
+                }
+
+                // Attach action result to response
+                if ($actionResult instanceof RecordInterface)
+                {
+                    $response->set($actionResult, $actionResult->getHTTPStatusCode() !== 200);
+                }
+                else
+                {
+                    // Handle possible errors
+                    if ($actionResult instanceof Error)
+                    {
+                        $response->setError($actionResult);
+                    }
+                    else
+                    {
+                        $response->set(null, false);
+                    }
+                }
             }
         }
         catch (\Error $e)
