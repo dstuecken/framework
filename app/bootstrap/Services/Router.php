@@ -19,14 +19,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
 
     $config = $application->getConfig();
 
-    if (isset($config['namespaces']['controller']))
-    {
-        $router->setDefaultNamespace($config['namespaces']['controller']);
-    }
-    else
-    {
-        $router->setDefaultNamespace('DS\Controller');
-    }
+    $defaultNamespace = $config['namespaces']['controller'] ?? 'DS\Controller';
 
     $router->setDefaultController('Index');
     $router->setDefaultAction('index');
@@ -36,7 +29,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}",
         [
-            'namespace' => 'DS\Controller',
+            'namespace' => $defaultNamespace,
             'controller' => 'Api',
             'action' => 'route',
         ]
@@ -45,7 +38,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/{subaction:[a-zA-Z0-9\-]+}",
         [
-            'namespace' => 'DS\Controller',
+            'namespace' => $defaultNamespace,
             'controller' => 'Api',
             'action' => 'route',
         ]
@@ -54,7 +47,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
     $router->add(
         "/api/v{version:[0-9]}/{method:[a-zA-Z0-9\-]+}/{subaction:[a-zA-Z0-9\-]+}/:params",
         [
-            'namespace' => 'DS\Controller',
+            'namespace' => $defaultNamespace,
             'controller' => 'Api',
             'action' => 'route',
             'params' => 4,
@@ -108,20 +101,8 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
      */
     $di->setShared(
         'dispatcher',
-        function () use ($di, $application) {
+        function () use ($di) {
             $evManager = $di->getShared('eventsManager');
-
-            /** @noinspection PhpUnusedParameterInspection */
-            /*
-            $evManager->attach(
-                "dispatch:afterDispatch",
-                function ($event, PhDispatcher $dispatcher) use($di)
-                {
-                }
-            );
-            */
-
-            $config = $application->getConfig();
 
             /** @noinspection PhpUnusedParameterInspection */
             $evManager->attach(
@@ -183,7 +164,6 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
                             );
                             break;
                         default:
-                        case 1:
                             $dispatcher->forward(
                                 [
                                     'namespace' => 'DS\Controller',
