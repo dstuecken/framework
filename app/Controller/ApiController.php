@@ -276,10 +276,10 @@ class ApiController
         $this->view->disable();
 
         // Prepare some request variables
-        $version = $this->dispatcher->getParam("version");
+        $version = $this->dispatcher->getParam("version") ?? 1;
         $method  = $this->prepareMethod($this->dispatcher->getParam("method") ?? '');
-        $action  = $this->dispatcher->getParam("subaction");
-        $params  = $this->dispatcher->getParams();
+        $action  = $this->dispatcher->getParam("subaction") ?? '';
+        $params  = $this->dispatcher->getParams() ?? [];
 
         unset($params['version'], $params['method'], $params['subaction']);
 
