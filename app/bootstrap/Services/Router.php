@@ -21,6 +21,7 @@ return function (\DS\Interfaces\GeneralApplication $application, Phalcon\Di\Fact
 
     $defaultNamespace = $config['namespaces']['controller'] ?? 'DS\Controller';
 
+    $router->setDefaultNamespace($defaultNamespace);
     $router->setDefaultController('Index');
     $router->setDefaultAction('index');
     $router->removeExtraSlashes(true);
