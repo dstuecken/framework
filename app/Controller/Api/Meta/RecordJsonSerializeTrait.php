@@ -5,11 +5,11 @@ namespace DS\Controller\Api\Meta;
 trait RecordJsonSerializeTrait
 {
     /**
-     * @return string
+     * @return mixed
      * @throws \JsonException
      */
-    public function jsonSerialize(): string
+    public function jsonSerialize()
     {
-        return json_encode($this->data, JSON_THROW_ON_ERROR);
+        return $this->data;
     }
 }

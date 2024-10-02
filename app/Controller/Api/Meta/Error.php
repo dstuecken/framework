@@ -44,7 +44,7 @@ final class Error implements \JsonSerializable
     /**
      * Json serializer
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return [
             'error' => $this->error,

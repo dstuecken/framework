@@ -22,9 +22,9 @@ interface RecordInterface
     public function getData();
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function jsonSerialize(): string;
+    public function jsonSerialize();
 
     /**
      * @return int

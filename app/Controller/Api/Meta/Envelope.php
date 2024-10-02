@@ -29,7 +29,7 @@ final class Envelope implements \JsonSerializable
     /**
      * Json serializer
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return [
             '_meta' => $this->_meta,
