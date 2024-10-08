@@ -84,7 +84,7 @@ class Auth
     /**
      * @return int
      */
-    public function getUserId(): int
+    public function getUserId(): ?int
     {
         return $this->userId;
     }
@@ -94,9 +94,9 @@ class Auth
      *
      * @return $this
      */
-    public function setUserId($userId): Auth
+    public function setUserId(?int $userId): Auth
     {
-        $this->userId = (int) $userId;
+        $this->userId = $userId;
         
         return $this;
     }
@@ -239,7 +239,7 @@ class Auth
         if ($this->session->isStarted())
         {
             // This is needed for checking if a user is logged in or not
-            $this->userId = (int) $this->session->get('uid');
+            $this->userId = $this->session->get('uid');
         }
         else
         {
