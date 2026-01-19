@@ -393,6 +393,12 @@ class ApiController
         }
         finally
         {
+            // Skip if response was already sent (e.g., 304 Not Modified cache hit)
+            if ($response->getResponse()->isSent())
+            {
+                return;
+            }
+
             if (!$response->getError() && is_null($response->getResponse()->getContent()))
             {
                 $response->setError(new Error('Api Error.', 'There was an internal error contacting the Api.', 'No response set by the api method.'));
