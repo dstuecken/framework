@@ -25,6 +25,54 @@ final class Initializer
     private static $eventsManager;
 
     /**
+     * Write exception details to error log file with proper error handling.
+     *
+     * @param string $baseDir Base directory path
+     * @param \Exception $exception The exception to log
+     * @return void
+     */
+    private static function writeErrorToFile(string $baseDir, \Exception $exception): void
+    {
+        $errorFile = $baseDir . '/system/errors';
+        $errorMessage = sprintf(
+            "\n[%s] %s %s",
+            date('Y-m-d H:i:s'),
+            $exception->getMessage(),
+            $exception->getTraceAsString()
+        );
+
+        try
+        {
+            $existingContent = '';
+            if (is_file($errorFile) && is_readable($errorFile))
+            {
+                $existingContent = file_get_contents($errorFile);
+                if ($existingContent === false)
+                {
+                    $existingContent = '';
+                }
+            }
+
+            $errorDir = dirname($errorFile);
+            if (!is_dir($errorDir))
+            {
+                mkdir($errorDir, 0755, true);
+            }
+
+            $result = file_put_contents($errorFile, $existingContent . $errorMessage);
+            if ($result === false)
+            {
+                error_log('DS-Framework: Failed to write to error file: ' . $errorFile);
+            }
+        }
+        catch (\Throwable $fileError)
+        {
+            // Last resort: use PHP's error_log as fallback
+            error_log('DS-Framework: Error writing to file (' . $fileError->getMessage() . '): ' . $errorMessage);
+        }
+    }
+
+    /**
      * Passes on given events manager to Application instance
      *
      * @param Manager $eventsManager
@@ -141,8 +189,8 @@ final class Initializer
         }
         catch (\Exception $e)
         {
-            // also store error into file
-            @file_put_contents($pwd . '/system/errors', @file_get_contents($pwd . '/system/errors') . "\n" . $e->getMessage() . " " . $e->getTraceAsString());
+            // Store error to file with proper error handling
+            self::writeErrorToFile($pwd, $e);
 
             if (!isset($di))
             {
