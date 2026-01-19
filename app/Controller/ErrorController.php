@@ -44,11 +44,18 @@ class ErrorController extends PhalconMvcController
 
         sentryException($exception);
 
-        return $this->response->setJsonContent([
-            'error' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine()
-        ]);
+        $errorResponse = [
+            'error' => $exception->getMessage()
+        ];
+
+        // Only expose debug details in non-production environments
+        if (application()->getMode() !== 'production')
+        {
+            $errorResponse['file'] = $exception->getFile();
+            $errorResponse['line'] = $exception->getLine();
+        }
+
+        return $this->response->setJsonContent($errorResponse);
     }
     
     private function callCustomErrorController(string $method, $param = null)
