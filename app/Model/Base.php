@@ -82,12 +82,9 @@ abstract class Base
      */
     public function isTransactionActive(): bool
     {
-        if ($this->getTransaction())
-        {
-            $this->getTransaction()->isValid();
-        }
-        
-        return false;
+        $transaction = $this->getTransaction();
+
+        return $transaction !== null && $transaction->isValid();
     }
     
     /**
