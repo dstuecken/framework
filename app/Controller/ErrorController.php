@@ -21,32 +21,34 @@ class ErrorController extends PhalconMvcController
 {
     /**
      * Show 404 error message
+     *
+     * @return \Phalcon\Http\Response
      */
     public function notFoundAction()
     {
         $this->response->setStatusCode(404, 'Not Found');
-        // ServiceManager::instance($this->getDI())->getMixpanel()->track('Error.404');
-        
-        $this->response->setJsonContent(['error' => '404 Not Found'])->send();
-        die;
+
+        return $this->response->setJsonContent(['error' => '404 Not Found']);
     }
-    
+
     /**
      * Show 500 error message
      *
      * @param \Exception $exception
+     * @return \Phalcon\Http\Response
      */
     public function errorAction(\Exception $exception)
     {
         $this->response->setStatusCode(500, 'Error');
         $this->view->setVar('error', $exception->getMessage());
-        
-        // ServiceManager::instance($this->getDI())->getMixpanel()->track('Error.500');
-        
+
         sentryException($exception);
-        
-        $this->response->setJsonContent(['error' => $exception->getMessage(), 'file' => $exception->getFile(), 'line' => $exception->getLine()])->send();
-        die;
+
+        return $this->response->setJsonContent([
+            'error' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine()
+        ]);
     }
     
     private function callCustomErrorController(string $method, $param = null)
