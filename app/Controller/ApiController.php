@@ -239,9 +239,9 @@ class ApiController
     /**
      * @param ActionHandler $ctrlInstance
      * @param Response $response
-     * @return void
+     * @return bool True if cache was handled and response was sent, false otherwise
      */
-    private function handleCache(ActionHandler $ctrlInstance, Response $response): void
+    private function handleCache(ActionHandler $ctrlInstance, Response $response): bool
     {
         // E-Tag handling
         $etag = $ctrlInstance->getEtag();
@@ -256,13 +256,14 @@ class ApiController
                 $response->getResponse()->setHeader('Cache-Control', 'must-revalidate');
                 $response->getResponse()->setNotModified();
                 $response->getResponse()->send();
-                die;
+
+                return true;
             }
-            else
-            {
-                $response->getResponse()->setCache(60 * 24);
-            }
+
+            $response->getResponse()->setCache(60 * 24);
         }
+
+        return false;
     }
 
     /**
@@ -322,7 +323,10 @@ class ApiController
                 $ctrlInstance->setId($params[count($params) - 1]);
             }
 
-            $this->handleCache($ctrlInstance, $response);
+            if ($this->handleCache($ctrlInstance, $response))
+            {
+                return;
+            }
 
             // Call process method to process the request or initialize the controller
             if (method_exists($ctrlInstance, $action))
@@ -389,6 +393,12 @@ class ApiController
         }
         finally
         {
+            // Skip if response was already sent (e.g., 304 Not Modified cache hit)
+            if ($response->getResponse()->isSent())
+            {
+                return;
+            }
+
             if (!$response->getError() && is_null($response->getResponse()->getContent()))
             {
                 $response->setError(new Error('Api Error.', 'There was an internal error contacting the Api.', 'No response set by the api method.'));
